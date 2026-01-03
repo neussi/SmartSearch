@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:smartsearch/screens/splash_screen.dart';
+import 'package:smartsearch/screens/home/home_screen.dart';
+import 'package:smartsearch/screens/auth/login_screen.dart';
+import 'package:smartsearch/screens/auth/register_screen.dart';
+import 'package:smartsearch/screens/search/text_search_screen.dart';
+import 'package:smartsearch/screens/search/image_search_screen.dart';
+import 'package:smartsearch/screens/product/product_detail_screen.dart';
+import 'package:smartsearch/screens/product/product_list_screen.dart';
+import 'package:smartsearch/screens/cart/cart_screen.dart';
 
 /// Configuration des routes de navigation
 class AppRoutes {
@@ -18,58 +27,49 @@ class AppRoutes {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case splash:
-        // return MaterialPageRoute(builder: (_) => const SplashScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement SplashScreen
+          builder: (_) => const SplashScreen(),
         );
 
       case home:
-        // return MaterialPageRoute(builder: (_) => const HomeScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement HomeScreen
+          builder: (_) => const HomeScreen(),
         );
 
       case login:
-        // return MaterialPageRoute(builder: (_) => const LoginScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement LoginScreen
+          builder: (_) => const LoginScreen(),
         );
 
       case register:
-        // return MaterialPageRoute(builder: (_) => const RegisterScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement RegisterScreen
+          builder: (_) => const RegisterScreen(),
         );
 
       case textSearch:
-        // return MaterialPageRoute(builder: (_) => const TextSearchScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement TextSearchScreen
+          builder: (_) => const TextSearchScreen(),
         );
 
       case imageSearch:
-        // return MaterialPageRoute(builder: (_) => const ImageSearchScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement ImageSearchScreen
+          builder: (_) => const ImageSearchScreen(),
         );
 
       case productDetail:
-        // final args = settings.arguments as Map<String, dynamic>;
-        // return MaterialPageRoute(builder: (_) => ProductDetailScreen(productId: args['id']));
+        final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement ProductDetailScreen
+          builder: (_) => ProductDetailScreen(productId: args['id']),
         );
 
       case productList:
-        // return MaterialPageRoute(builder: (_) => const ProductListScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement ProductListScreen
+          builder: (_) => const ProductListScreen(),
         );
 
       case cart:
-        // return MaterialPageRoute(builder: (_) => const CartScreen());
         return MaterialPageRoute(
-          builder: (_) => const Placeholder(), // TODO: Implement CartScreen
+          builder: (_) => const CartScreen(),
         );
 
       default:
