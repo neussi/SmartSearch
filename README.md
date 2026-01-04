@@ -3,7 +3,7 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Application mobile intelligente de recherche de produits utilisant du texte et des images, connectée à une plateforme de e-commerce. Projet développé dans le cadre du module **AIA4 - Réseaux de Neurones et Deep Learning II** (2025).
+Application mobile intelligente de recherche de produits utilisant du texte et des images, connectée à une plateforme de e-commerce. Projet développé dans le cadre du Projet de l'UE **Réseaux de Neurones et Deep Learning II** (AIA4 2025-2026).
 
 ## Table des matières
 
