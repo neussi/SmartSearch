@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' hide Category;
 import 'package:smartsearch/models/category.dart';
 import 'package:smartsearch/models/product.dart';
 import 'package:smartsearch/services/product_service.dart';

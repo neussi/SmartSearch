@@ -248,7 +248,7 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                   TextButton.icon(
                     onPressed: () {
                       setState(() {
-                        _selectedImage = null,
+                        _selectedImage = null;
                       });
                       searchProvider.clearResults();
                     },

@@ -1,0 +1,718 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:smartsearch/providers/auth_provider.dart';
+import 'package:smartsearch/providers/cart_provider.dart';
+import 'package:smartsearch/config/routes.dart';
+import 'package:smartsearch/widgets/animated_gradient_background.dart';
+import 'package:smartsearch/widgets/glassmorphic_card.dart';
+import 'package:smartsearch/widgets/animated_counter.dart';
+import 'package:smartsearch/widgets/circular_progress_indicator_custom.dart';
+import 'package:smartsearch/widgets/animated_button.dart';
+import 'package:smartsearch/widgets/animated_avatar.dart';
+import 'package:smartsearch/widgets/tilt_card.dart';
+import 'package:smartsearch/widgets/confetti_animation.dart';
+import 'package:smartsearch/widgets/advanced_circular_progress.dart';
+import 'package:smartsearch/widgets/radial_stats.dart';
+import 'package:smartsearch/widgets/animated_chart.dart';
+import 'package:smartsearch/widgets/liquid_progress.dart';
+import 'package:smartsearch/widgets/neumorphic_card.dart';
+
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _headerController;
+  late AnimationController _contentController;
+  late Animation<double> _headerAnimation;
+  late Animation<Offset> _slideAnimation;
+  bool _showConfetti = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _headerController = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      vsync: this,
+    );
+    _contentController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _headerAnimation = CurvedAnimation(
+      parent: _headerController,
+      curve: Curves.easeOut,
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _contentController,
+      curve: Curves.easeOut,
+    ));
+
+    _headerController.forward();
+    Future.delayed(const Duration(milliseconds: 300), () {
+      _contentController.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _headerController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = context.watch<AuthProvider>();
+    final cartProvider = context.watch<CartProvider>();
+    final user = authProvider.user;
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Mon Profil',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white),
+            onPressed: () {
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          AnimatedGradientBackground(
+            colors: const [
+              Color(0xFFfa709a),
+              Color(0xFFfee140),
+              Color(0xFFFF6B6B),
+              Color(0xFFEE5A6F),
+            ],
+            child: SafeArea(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      ScaleTransition(
+                        scale: _headerAnimation,
+                        child: _buildProfileHeader(user),
+                      ),
+                      const SizedBox(height: 30),
+                      SlideTransition(
+                        position: _slideAnimation,
+                        child: Column(
+                          children: [
+                            _buildStatsSection(cartProvider),
+                            const SizedBox(height: 24),
+                            _buildRadialStatsSection(),
+                            const SizedBox(height: 24),
+                            _buildChartSection(),
+                            const SizedBox(height: 24),
+                            _buildAchievementsSection(),
+                            const SizedBox(height: 24),
+                            _buildProgressSection(),
+                            const SizedBox(height: 24),
+                            _buildMenuSection(context, authProvider),
+                            const SizedBox(height: 24),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Confettis
+          if (_showConfetti)
+            Positioned.fill(
+              child: ConfettiAnimation(
+                isPlaying: _showConfetti,
+                onComplete: () {
+                  setState(() {
+                    _showConfetti = false;
+                  });
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileHeader(user) {
+    return TiltCard(
+      child: GlassmorphicCard(
+        child: Column(
+          children: [
+            const AnimatedAvatar(
+              size: 140,
+              icon: Icons.person,
+              gradientColors: [Color(0xFF667eea), Color(0xFF764ba2)],
+              showBadge: true,
+              enableFloating: true,
+            ),
+            const SizedBox(height: 20),
+            Text(
+              user?.name ?? 'Utilisateur',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              user?.email ?? 'email@example.com',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            if (user?.phone != null) ...[
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.phone, color: Colors.white70, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    user!.phone!,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _buildBadge(Icons.stars, 'VIP', Colors.amber),
+                const SizedBox(width: 12),
+                _buildBadge(Icons.local_fire_department, 'Top', Colors.orange),
+                const SizedBox(width: 12),
+                _buildBadge(Icons.favorite, 'Fan', Colors.pink),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBadge(IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color, width: 2),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: color, size: 16),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsSection(CartProvider cartProvider) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Statistiques',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: AnimatedCounter(
+                value: 47,
+                label: 'Achats',
+                icon: Icons.shopping_bag,
+                gradientColors: const [Color(0xFF4facfe), Color(0xFF00f2fe)],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: AnimatedCounter(
+                value: cartProvider.itemCount,
+                label: 'Panier',
+                icon: Icons.shopping_cart,
+                gradientColors: const [Color(0xFF43e97b), Color(0xFF38f9d7)],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: AnimatedCounter(
+                value: 12,
+                label: 'Favoris',
+                icon: Icons.favorite,
+                gradientColors: const [Color(0xFFFF6B6B), Color(0xFFEE5A6F)],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: AnimatedCounter(
+                value: 89,
+                label: 'Points',
+                icon: Icons.stars,
+                gradientColors: const [Color(0xFFfa709a), Color(0xFFfee140)],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAchievementsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Accomplissements',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        GlassmorphicCard(
+          child: Column(
+            children: [
+              _buildAchievementItem(
+                'Premier Achat',
+                'Complété',
+                Icons.shopping_bag,
+                1.0,
+                const Color(0xFF43e97b),
+              ),
+              const Divider(color: Colors.white24),
+              _buildAchievementItem(
+                'Shopping Expert',
+                '47/50 achats',
+                Icons.workspace_premium,
+                0.94,
+                const Color(0xFFfa709a),
+              ),
+              const Divider(color: Colors.white24),
+              _buildAchievementItem(
+                'Collectionneur',
+                '12/20 favoris',
+                Icons.collections,
+                0.6,
+                const Color(0xFF4facfe),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAchievementItem(
+    String title,
+    String subtitle,
+    IconData icon,
+    double progress,
+    Color color,
+  ) {
+    return InkWell(
+      onTap: () {
+        if (progress >= 1.0) {
+          setState(() {
+            _showConfetti = true;
+          });
+        }
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.elasticOut,
+              builder: (context, value, child) {
+                return Transform.scale(
+                  scale: value,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: progress >= 1.0
+                          ? [
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.5),
+                                blurRadius: 15,
+                                spreadRadius: 2,
+                              ),
+                            ]
+                          : [],
+                    ),
+                    child: Icon(icon, color: color, size: 24),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      if (progress >= 1.0) ...[
+                        const SizedBox(width: 8),
+                        Icon(
+                          Icons.check_circle,
+                          color: color,
+                          size: 20,
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.0, end: progress),
+                    duration: const Duration(milliseconds: 1500),
+                    curve: Curves.easeOutCubic,
+                    builder: (context, value, child) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Stack(
+                          children: [
+                            Container(
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            FractionallySizedBox(
+                              widthFactor: value,
+                              child: Container(
+                                height: 6,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [color, color.withValues(alpha: 0.6)],
+                                  ),
+                                  borderRadius: BorderRadius.circular(10),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: color.withValues(alpha: 0.5),
+                                      blurRadius: 8,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRadialStatsSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Performance Radiale',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        NeumorphicCard(
+          child: Center(
+            child: RadialStats(
+              size: 250,
+              stats: [
+                RadialStatData(
+                  label: 'Achats',
+                  value: 47,
+                  maxValue: 50,
+                  color: const Color(0xFF4facfe),
+                  icon: Icons.shopping_bag,
+                ),
+                RadialStatData(
+                  label: 'Favoris',
+                  value: 12,
+                  maxValue: 20,
+                  color: const Color(0xFFFF6B6B),
+                  icon: Icons.favorite,
+                ),
+                RadialStatData(
+                  label: 'Points',
+                  value: 89,
+                  maxValue: 100,
+                  color: const Color(0xFFfa709a),
+                  icon: Icons.stars,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChartSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Activité Cette Semaine',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        NeumorphicCard(
+          child: AnimatedChart(
+            data: const [15, 23, 18, 32, 27, 21, 35],
+            labels: const ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+            gradientColors: const [Color(0xFF43e97b), Color(0xFF38f9d7)],
+            height: 200,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProgressSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Niveau & Progression',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 16),
+        NeumorphicCard(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: const [
+              AdvancedCircularProgress(
+                progress: 0.75,
+                label: 'Niveau 7',
+                sublabel: '750/1000 XP',
+                gradientColors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                size: 130,
+                showPulse: true,
+              ),
+              LiquidProgress(
+                progress: 0.85,
+                size: 130,
+                liquidColors: [Color(0xFFfa709a), Color(0xFFfee140)],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuSection(BuildContext context, AuthProvider authProvider) {
+    return GlassmorphicCard(
+      child: Column(
+        children: [
+          _buildMenuItem(
+            Icons.favorite,
+            'Mes Favoris',
+            'Produits que vous aimez',
+            () {
+              Navigator.pushNamed(context, '/favorites');
+            },
+          ),
+          const Divider(color: Colors.white24),
+          _buildMenuItem(
+            Icons.history,
+            'Historique',
+            'Vos achats précédents',
+            () {},
+          ),
+          const Divider(color: Colors.white24),
+          _buildMenuItem(
+            Icons.notifications,
+            'Notifications',
+            'Gérer les notifications',
+            () {},
+          ),
+          const Divider(color: Colors.white24),
+          _buildMenuItem(
+            Icons.help,
+            'Aide & Support',
+            'Besoin d\'assistance?',
+            () {},
+          ),
+          const Divider(color: Colors.white24),
+          _buildMenuItem(
+            Icons.logout,
+            'Déconnexion',
+            'Se déconnecter du compte',
+            () {
+              _showLogoutDialog(context, authProvider);
+            },
+            isDestructive: true,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMenuItem(
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback onTap, {
+    bool isDestructive = false,
+  }) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isDestructive
+              ? Colors.red.withOpacity(0.2)
+              : Colors.white.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          icon,
+          color: isDestructive ? Colors.red : Colors.white,
+        ),
+      ),
+      title: Text(
+        title,
+        style: TextStyle(
+          color: isDestructive ? Colors.red : Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(
+          color: isDestructive ? Colors.red.withOpacity(0.7) : Colors.white70,
+          fontSize: 12,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        color: isDestructive ? Colors.red : Colors.white,
+        size: 16,
+      ),
+      onTap: onTap,
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context, AuthProvider authProvider) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Déconnexion'),
+        content: const Text('Êtes-vous sûr de vouloir vous déconnecter?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              authProvider.logout();
+              Navigator.pop(context);
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Déconnexion'),
+          ),
+        ],
+      ),
+    );
+  }
+}

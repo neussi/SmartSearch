@@ -8,6 +8,10 @@ import 'package:smartsearch/screens/search/image_search_screen.dart';
 import 'package:smartsearch/screens/product/product_detail_screen.dart';
 import 'package:smartsearch/screens/product/product_list_screen.dart';
 import 'package:smartsearch/screens/cart/cart_screen.dart';
+import 'package:smartsearch/screens/profile/profile_screen.dart';
+import 'package:smartsearch/screens/settings/settings_screen.dart';
+import 'package:smartsearch/screens/onboarding/onboarding_screen.dart';
+import 'package:smartsearch/screens/favorites/favorites_screen.dart';
 
 /// Configuration des routes de navigation
 class AppRoutes {
@@ -22,10 +26,13 @@ class AppRoutes {
   static const String productList = '/product/list';
   static const String cart = '/cart';
   static const String profile = '/profile';
+  static const String settings = '/settings';
+  static const String onboarding = '/onboarding';
+  static const String favorites = '/favorites';
 
   // Route generator
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
+  static Route<dynamic> generateRoute(RouteSettings routeSettings) {
+    switch (routeSettings.name) {
       case splash:
         return MaterialPageRoute(
           builder: (_) => const SplashScreen(),
@@ -57,7 +64,7 @@ class AppRoutes {
         );
 
       case productDetail:
-        final args = settings.arguments as Map<String, dynamic>;
+        final args = routeSettings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
           builder: (_) => ProductDetailScreen(productId: args['id']),
         );
@@ -72,11 +79,31 @@ class AppRoutes {
           builder: (_) => const CartScreen(),
         );
 
+      case profile:
+        return MaterialPageRoute(
+          builder: (_) => const ProfileScreen(),
+        );
+
+      case settings:
+        return MaterialPageRoute(
+          builder: (_) => const SettingsScreen(),
+        );
+
+      case onboarding:
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingScreen(),
+        );
+
+      case favorites:
+        return MaterialPageRoute(
+          builder: (_) => const FavoritesScreen(),
+        );
+
       default:
         return MaterialPageRoute(
           builder: (_) => Scaffold(
             body: Center(
-              child: Text('Route ${settings.name} non trouvée'),
+              child: Text('Route ${routeSettings.name} non trouvée'),
             ),
           ),
         );
