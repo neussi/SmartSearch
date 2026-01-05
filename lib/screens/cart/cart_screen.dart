@@ -6,6 +6,7 @@ import 'package:smartsearch/widgets/animated_gradient_background.dart';
 import 'package:smartsearch/widgets/glassmorphic_card.dart';
 import 'package:smartsearch/widgets/animated_button.dart';
 import 'package:smartsearch/widgets/loading_widget.dart';
+import 'package:smartsearch/widgets/cart_item_card.dart';
 import 'package:smartsearch/utils/helpers.dart';
 
 class CartScreen extends StatefulWidget {
@@ -133,8 +134,11 @@ class _CartScreenState extends State<CartScreen>
                                       ),
                                     );
                                   },
-                                  child: _CartItemCard(
+                                  child: CartItemCard(
                                     item: item,
+                                    onRemove: () {
+                                      cartProvider.removeFromCart(item.id);
+                                    },
                                     onQuantityChanged: (quantity) {
                                       cartProvider.updateQuantity(
                                         cartItemId: item.id,
@@ -323,151 +327,6 @@ class _CartScreenState extends State<CartScreen>
             child: const Text('OK'),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CartItemCard extends StatelessWidget {
-  final dynamic item;
-  final Function(int) onQuantityChanged;
-
-  const _CartItemCard({
-    required this.item,
-    required this.onQuantityChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: Row(
-          children: [
-            CachedNetworkImage(
-              imageUrl: item.product.imageUrl,
-              width: 100,
-              height: 120,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Container(
-                width: 100,
-                height: 120,
-                color: Colors.grey.shade200,
-                child: const Center(
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-              errorWidget: (context, url, error) => Container(
-                width: 100,
-                height: 120,
-                color: Colors.grey.shade200,
-                child: const Icon(Icons.image_not_supported, color: Colors.grey),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.product.name,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      Helpers.formatPrice(item.product.finalPrice),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF667eea),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _buildQuantityButton(
-                          icon: Icons.remove,
-                          onPressed: () {
-                            if (item.quantity > 1) {
-                              onQuantityChanged(item.quantity - 1);
-                            }
-                          },
-                        ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 12),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            item.quantity.toString(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        _buildQuantityButton(
-                          icon: Icons.add,
-                          onPressed: () {
-                            onQuantityChanged(item.quantity + 1);
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuantityButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: const Color(0xFF667eea).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(
-            icon,
-            color: const Color(0xFF667eea),
-            size: 18,
-          ),
-        ),
       ),
     );
   }
