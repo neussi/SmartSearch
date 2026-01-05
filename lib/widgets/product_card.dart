@@ -152,7 +152,7 @@ class _ProductCardState extends State<ProductCard>
                               ],
                             ),
                             child: Text(
-                              Helpers.formatDiscount(widget.product.discount),
+                              Helpers.formatDiscount(widget.product.discountPercentage),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,

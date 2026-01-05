@@ -216,7 +216,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                     borderRadius: BorderRadius.circular(20),
                                   ),
                                   child: Text(
-                                    Helpers.formatDiscount(product.discount),
+                                    Helpers.formatDiscount(product.discountPercentage),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,

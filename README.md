@@ -290,7 +290,7 @@ SmartSearch/
   - Modification des quantités
   - Calcul du total
   - Bouton de commande
-- [ ] Écrans d'authentification (LoginScreen, RegisterScreen)
+- [ ] Écrans d'authentification (LokiginScreen, RegisterScreen)
   - Formulaires de connexion/inscription
   - Validation des champs
   - Gestion des erreurs

@@ -6,20 +6,20 @@ class Product extends Equatable {
   final String name;
   final String description;
   final double price;
-  final double discount; // Réduction en pourcentage (0-100)
+  final double discountPercentage; // Renommé pour correspondre aux tests et widgets
   final String imageUrl;
   final String? category;
   final String? subCategory;
   final double? popularity;
   final double? rating;
-  final double? similarityScore; // Score de similarité pour les recherches
+  final double? similarityScore;
 
   const Product({
     required this.id,
     required this.name,
     required this.description,
     required this.price,
-    this.discount = 0,
+    this.discountPercentage = 0, // Valeur par défaut à 0
     required this.imageUrl,
     this.category,
     this.subCategory,
@@ -30,8 +30,8 @@ class Product extends Equatable {
 
   /// Prix après réduction
   double get finalPrice {
-    if (discount > 0) {
-      return price * (1 - (discount / 100));
+    if (discountPercentage > 0) {
+      return price * (1 - (discountPercentage / 100));
     }
     return price;
   }
@@ -43,7 +43,7 @@ class Product extends Equatable {
 
   /// Vérifie si le produit a une réduction
   bool get hasDiscount {
-    return discount > 0;
+    return discountPercentage > 0;
   }
 
   /// Factory pour créer un Product depuis JSON
@@ -53,7 +53,8 @@ class Product extends Equatable {
       name: json['name'] ?? '',
       description: json['description'] ?? '',
       price: (json['price'] ?? 0).toDouble(),
-      discount: (json['discount'] ?? 0).toDouble(),
+      // Gère les deux noms possibles venant de l'API par sécurité
+      discountPercentage: (json['discountPercentage'] ?? json['discount'] ?? 0).toDouble(),
       imageUrl: json['imageUrl'] ?? json['image_url'] ?? '',
       category: json['category'],
       subCategory: json['subCategory'] ?? json['sub_category'],
@@ -70,7 +71,7 @@ class Product extends Equatable {
       'name': name,
       'description': description,
       'price': price,
-      'discount': discount,
+      'discountPercentage': discountPercentage,
       'imageUrl': imageUrl,
       'category': category,
       'subCategory': subCategory,
@@ -86,7 +87,7 @@ class Product extends Equatable {
     String? name,
     String? description,
     double? price,
-    double? discount,
+    double? discountPercentage,
     String? imageUrl,
     String? category,
     String? subCategory,
@@ -99,7 +100,7 @@ class Product extends Equatable {
       name: name ?? this.name,
       description: description ?? this.description,
       price: price ?? this.price,
-      discount: discount ?? this.discount,
+      discountPercentage: discountPercentage ?? this.discountPercentage,
       imageUrl: imageUrl ?? this.imageUrl,
       category: category ?? this.category,
       subCategory: subCategory ?? this.subCategory,
@@ -115,7 +116,7 @@ class Product extends Equatable {
         name,
         description,
         price,
-        discount,
+        discountPercentage,
         imageUrl,
         category,
         subCategory,
