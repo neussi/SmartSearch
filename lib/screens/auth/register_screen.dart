@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartsearch/config/routes.dart';
+import 'package:smartsearch/config/theme_config.dart';
 import 'package:smartsearch/providers/auth_provider.dart';
-import 'package:smartsearch/widgets/animated_gradient_background.dart';
-import 'package:smartsearch/widgets/glassmorphic_card.dart';
-import 'package:smartsearch/widgets/custom_text_field.dart';
-import 'package:smartsearch/widgets/animated_button.dart';
 import 'package:smartsearch/utils/validators.dart';
 
+/// RegisterScreen ULTRA PROFESSIONNEL avec design blanc & orange uniquement
+/// Design élégant, animations fluides, expérience utilisateur WAOUH
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -33,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
@@ -42,7 +41,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
@@ -60,6 +59,16 @@ class _RegisterScreenState extends State<RegisterScreen>
     _confirmPasswordController.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  String? _validateConfirmPassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Veuillez confirmer votre mot de passe';
+    }
+    if (value != _passwordController.text) {
+      return 'Les mots de passe ne correspondent pas';
+    }
+    return null;
   }
 
   Future<void> _register() async {
@@ -80,11 +89,12 @@ class _RegisterScreenState extends State<RegisterScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authProvider.errorMessage!),
-            backgroundColor: Colors.red,
+            backgroundColor: ThemeConfig.errorColor,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            margin: const EdgeInsets.all(16),
           ),
         );
       }
@@ -96,200 +106,478 @@ class _RegisterScreenState extends State<RegisterScreen>
     final authProvider = context.watch<AuthProvider>();
 
     return Scaffold(
-      body: AnimatedGradientBackground(
-        colors: const [
-          Color(0xFF4facfe),
-          Color(0xFF00f2fe),
-          Color(0xFF43e97b),
-          Color(0xFF38f9d7),
-        ],
-        child: SafeArea(
-          child: Column(
-            children: [
-              AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                leading: IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ),
-              Expanded(
-                child: Center(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: SlideTransition(
-                        position: _slideAnimation,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              duration: const Duration(milliseconds: 1200),
-                              curve: Curves.elasticOut,
-                              builder: (context, value, child) {
-                                return Transform.scale(
-                                  scale: value,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(20),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.white.withOpacity(0.3),
-                                          blurRadius: 30,
-                                          spreadRadius: 10,
-                                        ),
-                                      ],
-                                    ),
-                                    child: const Icon(
-                                      Icons.person_add,
-                                      size: 50,
-                                      color: Color(0xFF4facfe),
-                                    ),
+      backgroundColor: ThemeConfig.surfaceColor,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo avec animation
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 1200),
+                      curve: Curves.elasticOut,
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Transform.rotate(
+                            angle: (1 - value) * 0.5,
+                            child: Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ThemeConfig.primaryColor.withValues(alpha: 0.15),
+                                    ThemeConfig.primaryColor.withValues(alpha: 0.08),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.3 * value),
+                                    blurRadius: 30,
+                                    spreadRadius: 10,
                                   ),
-                                );
-                              },
-                            ),
-                            const SizedBox(height: 30),
-                            const Text(
-                              'Créer un Compte',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 36,
-                                fontWeight: FontWeight.bold,
+                                ],
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Rejoignez SmartSearch aujourd\'hui',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 16,
-                              ),
-                            ),
-                            const SizedBox(height: 40),
-                            GlassmorphicCard(
-                              child: Form(
-                                key: _formKey,
-                                child: Column(
-                                  children: [
-                                    CustomTextField(
-                                      controller: _nameController,
-                                      label: 'Nom complet',
-                                      hint: 'John Doe',
-                                      prefixIcon: const Icon(Icons.person),
-                                      validator: Validators.validateName,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    CustomTextField(
-                                      controller: _emailController,
-                                      label: 'Email',
-                                      hint: 'votreemail@example.com',
-                                      keyboardType: TextInputType.emailAddress,
-                                      prefixIcon: const Icon(Icons.email),
-                                      validator: Validators.validateEmail,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    CustomTextField(
-                                      controller: _phoneController,
-                                      label: 'Téléphone (optionnel)',
-                                      hint: '+237 6XX XXX XXX',
-                                      keyboardType: TextInputType.phone,
-                                      prefixIcon: const Icon(Icons.phone),
-                                      validator: Validators.validatePhone,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    CustomTextField(
-                                      controller: _passwordController,
-                                      label: 'Mot de passe',
-                                      hint: '••••••••',
-                                      obscureText: _obscurePassword,
-                                      prefixIcon: const Icon(Icons.lock),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscurePassword
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            _obscurePassword = !_obscurePassword;
-                                          });
-                                        },
-                                      ),
-                                      validator: Validators.validatePassword,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    CustomTextField(
-                                      controller: _confirmPasswordController,
-                                      label: 'Confirmer le mot de passe',
-                                      hint: '••••••••',
-                                      obscureText: _obscureConfirmPassword,
-                                      prefixIcon: const Icon(Icons.lock_outline),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscureConfirmPassword
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                        ),
-                                        onPressed: () {
-                                          setState(() {
-                                            _obscureConfirmPassword =
-                                                !_obscureConfirmPassword;
-                                          });
-                                        },
-                                      ),
-                                      validator: (value) =>
-                                          Validators.validateConfirmPassword(
-                                        value,
-                                        _passwordController.text,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 32),
-                                    AnimatedButton(
-                                      text: 'S\'inscrire',
-                                      icon: Icons.arrow_forward,
-                                      isLoading: authProvider.isLoading,
-                                      onPressed: _register,
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ThemeConfig.primaryColor.withValues(alpha: 0.5),
+                                      blurRadius: 20,
+                                      spreadRadius: 5,
                                     ),
                                   ],
                                 ),
+                                child: const Icon(
+                                  Icons.person_add,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Déjà un compte?',
-                                  style: TextStyle(color: Colors.white70),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text(
-                                    'Se Connecter',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Titre
+                    const Text(
+                      'Créer un compte',
+                      style: TextStyle(
+                        color: ThemeConfig.textPrimaryColor,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Rejoignez SmartSearch dès maintenant',
+                      style: TextStyle(
+                        color: ThemeConfig.textSecondaryColor,
+                        fontSize: 15,
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Formulaire
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          // Champ Nom
+                          TextFormField(
+                            controller: _nameController,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Nom complet',
+                              hintText: 'Votre nom',
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.person_outline,
+                                  color: ThemeConfig.primaryColor,
+                                  size: 20,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Veuillez entrer votre nom';
+                              }
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Champ Email
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              hintText: 'votreemail@example.com',
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.email_outlined,
+                                  color: ThemeConfig.primaryColor,
+                                  size: 20,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            validator: Validators.validateEmail,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Champ Téléphone (optionnel)
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Téléphone (optionnel)',
+                              hintText: '+237 6XX XXX XXX',
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.phone_outlined,
+                                  color: ThemeConfig.primaryColor,
+                                  size: 20,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Champ Mot de passe
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Mot de passe',
+                              hintText: '••••••••',
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.lock_outlined,
+                                  color: ThemeConfig.primaryColor,
+                                  size: 20,
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: ThemeConfig.textSecondaryColor,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            validator: Validators.validatePassword,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Champ Confirmer mot de passe
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _obscureConfirmPassword,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Confirmer le mot de passe',
+                              hintText: '••••••••',
+                              prefixIcon: Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Icon(
+                                  Icons.lock_outlined,
+                                  color: ThemeConfig.primaryColor,
+                                  size: 20,
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureConfirmPassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: ThemeConfig.textSecondaryColor,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscureConfirmPassword = !_obscureConfirmPassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            validator: _validateConfirmPassword,
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Bouton d'inscription
+                          SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    ThemeConfig.primaryColor,
+                                    ThemeConfig.primaryLightColor,
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: authProvider.isLoading ? null : _register,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: authProvider.isLoading
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    : const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'S\'inscrire',
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Icon(
+                                            Icons.arrow_forward_rounded,
+                                            color: Colors.white,
+                                            size: 22,
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Lien vers connexion
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Déjà un compte?',
+                          style: TextStyle(
+                            color: ThemeConfig.textSecondaryColor,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacementNamed(context, AppRoutes.login);
+                          },
+                          child: const Text(
+                            'Se connecter',
+                            style: TextStyle(
+                              color: ThemeConfig.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),

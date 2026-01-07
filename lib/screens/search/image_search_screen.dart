@@ -4,11 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:smartsearch/providers/search_provider.dart';
 import 'package:smartsearch/providers/cart_provider.dart';
-import 'package:smartsearch/widgets/animated_gradient_background.dart';
-import 'package:smartsearch/widgets/glassmorphic_card.dart';
 import 'package:smartsearch/widgets/product_card.dart';
-import 'package:smartsearch/widgets/animated_button.dart';
-import 'package:smartsearch/widgets/loading_widget.dart';
+import 'package:smartsearch/config/theme_config.dart';
 
 class ImageSearchScreen extends StatefulWidget {
   const ImageSearchScreen({super.key});
@@ -96,22 +93,37 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
     final cartProvider = context.watch<CartProvider>();
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: ThemeConfig.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: ThemeConfig.surfaceColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: ThemeConfig.primaryColor,
+              size: 20,
+            ),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Recherche par Image',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: ThemeConfig.textPrimaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
         ),
         actions: [
           if (_selectedImage != null)
             IconButton(
-              icon: const Icon(Icons.clear, color: Colors.white),
+              icon: const Icon(Icons.clear, color: ThemeConfig.primaryColor),
               onPressed: () {
                 setState(() {
                   _selectedImage = null;
@@ -121,21 +133,13 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
             ),
         ],
       ),
-      body: AnimatedGradientBackground(
-        colors: const [
-          Color(0xFFfa709a),
-          Color(0xFFfee140),
-          Color(0xFFFF6B6B),
-          Color(0xFFEE5A6F),
-        ],
-        child: SafeArea(
+      body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: _selectedImage == null
                 ? _buildImagePicker()
                 : _buildSearchResults(searchProvider, cartProvider),
           ),
-        ),
       ),
     );
   }
@@ -154,17 +158,14 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                 height: 200,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white.withOpacity(0.3),
-                      Colors.white.withOpacity(0.1),
-                    ],
+                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
+                    width: 3,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.2),
+                      color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
                       blurRadius: 40,
                       spreadRadius: 10,
                     ),
@@ -173,7 +174,7 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                 child: const Icon(
                   Icons.camera_alt,
                   size: 80,
-                  color: Colors.white,
+                  color: ThemeConfig.primaryColor,
                 ),
               ),
             ),
@@ -181,7 +182,7 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
             const Text(
               'Recherchez avec une Image',
               style: TextStyle(
-                color: Colors.white,
+                color: ThemeConfig.textPrimaryColor,
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
               ),
@@ -191,30 +192,41 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
             const Text(
               'Prenez une photo ou sélectionnez-en une depuis votre galerie',
               style: TextStyle(
-                color: Colors.white70,
+                color: ThemeConfig.textSecondaryColor,
                 fontSize: 16,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 60),
-            AnimatedButton(
-              text: 'Prendre une Photo',
-              icon: Icons.camera_alt,
-              gradientColors: const [
-                Color(0xFF667eea),
-                Color(0xFF764ba2),
-              ],
+            ElevatedButton.icon(
               onPressed: () => _pickImage(ImageSource.camera),
+              icon: const Icon(Icons.camera_alt),
+              label: const Text('Prendre une Photo'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ThemeConfig.primaryColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
             ),
-            const SizedBox(height: 20),
-            AnimatedButton(
-              text: 'Choisir depuis la Galerie',
-              icon: Icons.photo_library,
-              gradientColors: const [
-                Color(0xFF4facfe),
-                Color(0xFF00f2fe),
-              ],
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
               onPressed: () => _pickImage(ImageSource.gallery),
+              icon: const Icon(Icons.photo_library),
+              label: const Text('Choisir depuis la Galerie'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: ThemeConfig.primaryColor,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                side: const BorderSide(color: ThemeConfig.primaryColor, width: 2),
+              ),
             ),
           ],
         ),
@@ -228,12 +240,27 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
   ) {
     return Column(
       children: [
-        GlassmorphicCard(
+        Container(
           margin: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: ThemeConfig.surfaceColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
           child: Column(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                 child: Image.file(
                   _selectedImage!,
                   height: 200,
@@ -241,59 +268,91 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                   fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _selectedImage = null;
-                      });
-                      searchProvider.clearResults();
-                    },
-                    icon: const Icon(Icons.refresh, color: Colors.white),
-                    label: const Text(
-                      'Nouvelle Image',
-                      style: TextStyle(color: Colors.white),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _selectedImage = null;
+                        });
+                        searchProvider.clearResults();
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Nouvelle Image'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: ThemeConfig.primaryColor,
+                        side: const BorderSide(color: ThemeConfig.primaryColor),
+                      ),
                     ),
-                  ),
-                  TextButton.icon(
-                    onPressed: _searchByImage,
-                    icon: const Icon(Icons.search, color: Colors.white),
-                    label: const Text(
-                      'Rechercher',
-                      style: TextStyle(color: Colors.white),
+                    ElevatedButton.icon(
+                      onPressed: _searchByImage,
+                      icon: const Icon(Icons.search),
+                      label: const Text('Rechercher'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: ThemeConfig.primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
         if (searchProvider.isLoading)
-          const Expanded(
-            child: LoadingWidget(message: 'Analyse de l\'image...'),
+          Expanded(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      ThemeConfig.primaryColor,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Text(
+                    'Analyse de l\'image...',
+                    style: TextStyle(
+                      color: ThemeConfig.textSecondaryColor,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           )
         else if (searchProvider.errorMessage != null)
           Expanded(
             child: Center(
-              child: GlassmorphicCard(
+              child: Container(
                 margin: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: ThemeConfig.surfaceColor,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: ThemeConfig.errorColor.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
+                ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.error_outline,
                       size: 60,
-                      color: Colors.white,
+                      color: ThemeConfig.errorColor,
                     ),
                     const SizedBox(height: 16),
                     Text(
                       searchProvider.errorMessage!,
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: ThemeConfig.textPrimaryColor,
                         fontSize: 16,
                       ),
                       textAlign: TextAlign.center,
@@ -307,21 +366,30 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
           Expanded(
             child: searchProvider.lastSearchResult!.products.isEmpty
                 ? Center(
-                    child: GlassmorphicCard(
+                    child: Container(
                       margin: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: ThemeConfig.surfaceColor,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
                           Icon(
                             Icons.search_off,
                             size: 60,
-                            color: Colors.white,
+                            color: ThemeConfig.textSecondaryColor,
                           ),
                           SizedBox(height: 16),
                           Text(
                             'Aucun produit similaire trouvé',
                             style: TextStyle(
-                              color: Colors.white,
+                              color: ThemeConfig.textPrimaryColor,
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -339,7 +407,7 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                         child: Text(
                           '${searchProvider.lastSearchResult!.totalResults} produits similaires',
                           style: const TextStyle(
-                            color: Colors.white,
+                            color: ThemeConfig.textPrimaryColor,
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
@@ -385,8 +453,7 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                                               '${product.name} ajouté au panier',
                                             ),
                                             behavior: SnackBarBehavior.floating,
-                                            backgroundColor:
-                                                const Color(0xFFfa709a),
+                                            backgroundColor: ThemeConfig.primaryColor,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(12),

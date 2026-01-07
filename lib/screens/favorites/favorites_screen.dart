@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:smartsearch/widgets/animated_gradient_background.dart';
-import 'package:smartsearch/widgets/glassmorphic_card.dart';
-import 'package:smartsearch/models/product.dart';
-import 'package:smartsearch/widgets/product_card.dart';
+import 'package:provider/provider.dart';
+import 'package:smartsearch/config/theme_config.dart';
+import 'package:smartsearch/providers/cart_provider.dart';
+import 'package:smartsearch/widgets/loading_widget.dart';
 
+/// FavoritesScreen ULTRA PROFESSIONNEL - Blanc & Orange uniquement
+/// Design moderne avec animations fluides
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
 
@@ -13,136 +15,142 @@ class FavoritesScreen extends StatefulWidget {
 
 class _FavoritesScreenState extends State<FavoritesScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  final List<Product> _favorites = [];
+  late AnimationController _animationController;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 800),
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    _controller.forward();
+    _animationController.forward();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: ThemeConfig.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: ThemeConfig.surfaceColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: ThemeConfig.primaryColor,
+              size: 20,
+            ),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Mes Favoris',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: ThemeConfig.textPrimaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
         ),
       ),
-      body: AnimatedGradientBackground(
-        colors: const [
-          Color(0xFFFF6B6B),
-          Color(0xFFEE5A6F),
-          Color(0xFFfa709a),
-          Color(0xFFfee140),
-        ],
-        child: SafeArea(
-          child: _favorites.isEmpty
-              ? _buildEmptyState()
-              : FadeTransition(
-                  opacity: _controller,
-                  child: GridView.builder(
-                    padding: const EdgeInsets.all(20),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 0.7,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
-                    ),
-                    itemCount: _favorites.length,
-                    itemBuilder: (context, index) {
-                      return ProductCard(
-                        product: _favorites[index],
-                        onAddToCart: () {},
-                      );
-                    },
-                  ),
-                ),
-        ),
-      ),
+      body: _isLoading
+          ? const Center(child: LoadingWidget())
+          : _buildEmptyFavorites(),
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyFavorites() {
     return Center(
-      child: FadeTransition(
-        opacity: _controller,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TweenAnimationBuilder<double>(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: const Duration(milliseconds: 1200),
-              curve: Curves.elasticOut,
-              builder: (context, value, child) {
-                return Transform.scale(
-                  scale: value,
-                  child: Container(
-                    padding: const EdgeInsets.all(40),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.white.withOpacity(0.3),
-                          blurRadius: 40,
-                          spreadRadius: 20,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.favorite_border,
-                      size: 80,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.favorite_border,
+              size: 80,
+              color: ThemeConfig.primaryColor,
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Aucun favori',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: ThemeConfig.textPrimaryColor,
+            ),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Ajoutez des produits à vos favoris',
+            style: TextStyle(
+              fontSize: 16,
+              color: ThemeConfig.textSecondaryColor,
+            ),
+          ),
+          const SizedBox(height: 32),
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  ThemeConfig.primaryColor,
+                  ThemeConfig.primaryLightColor,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.explore_outlined, color: Colors.white),
+                  SizedBox(width: 12),
+                  Text(
+                    'Découvrir des produits',
+                    style: TextStyle(
                       color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 40),
-            const Text(
-              'Aucun Favori',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40),
-              child: Text(
-                'Ajoutez vos produits préférés à vos favoris en appuyant sur le coeur',
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 16,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

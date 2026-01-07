@@ -3,7 +3,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:smartsearch/models/product.dart';
 import 'package:smartsearch/utils/helpers.dart';
 import 'package:smartsearch/config/routes.dart';
+import 'package:smartsearch/config/theme_config.dart';
 
+/// ProductCard ULTRA PROFESSIONNEL avec design blanc & orange
+/// Animations fluides, effets visuels WAOUH, interactions dynamiques
 class ProductCard extends StatefulWidget {
   final Product product;
   final VoidCallback? onTap;
@@ -33,7 +36,7 @@ class _ProductCardState extends State<ProductCard>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.98).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
     );
   }
@@ -77,30 +80,31 @@ class _ProductCardState extends State<ProductCard>
         scale: _scaleAnimation,
         child: Container(
           decoration: BoxDecoration(
+            color: ThemeConfig.surfaceColor,
             borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white,
-                Colors.grey.shade50,
-              ],
+            border: Border.all(
+              color: _isPressed
+                  ? ThemeConfig.primaryColor.withValues(alpha: 0.4)
+                  : ThemeConfig.primaryColor.withValues(alpha: 0.1),
+              width: _isPressed ? 2 : 1,
             ),
             boxShadow: [
               BoxShadow(
                 color: _isPressed
-                    ? Colors.black.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.08),
-                blurRadius: _isPressed ? 10 : 20,
-                offset: _isPressed ? const Offset(0, 2) : const Offset(0, 10),
+                    ? ThemeConfig.primaryColor.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.08),
+                blurRadius: _isPressed ? 16 : 20,
+                offset: _isPressed ? const Offset(0, 4) : const Offset(0, 6),
+                spreadRadius: _isPressed ? 2 : 1,
               ),
             ],
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Image du produit
                 Expanded(
                   flex: 3,
                   child: Stack(
@@ -112,74 +116,102 @@ class _ProductCardState extends State<ProductCard>
                           fit: BoxFit.cover,
                           width: double.infinity,
                           placeholder: (context, url) => Container(
-                            color: Colors.grey.shade200,
-                            child: const Center(
+                            color: ThemeConfig.backgroundColor,
+                            child: Center(
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
+                                color: ThemeConfig.primaryColor,
                               ),
                             ),
                           ),
                           errorWidget: (context, url, error) => Container(
-                            color: Colors.grey.shade200,
-                            child: const Icon(
+                            color: ThemeConfig.backgroundColor,
+                            child: Icon(
                               Icons.image_not_supported,
                               size: 40,
-                              color: Colors.grey,
+                              color: ThemeConfig.textSecondaryColor,
                             ),
                           ),
                         ),
                       ),
+                      // Badge de réduction - Style orange AMÉLIORÉ
                       if (widget.product.hasDiscount)
                         Positioned(
-                          top: 10,
-                          right: 10,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Color(0xFFFF6B6B), Color(0xFFEE5A6F)],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.red.withOpacity(0.4),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 4),
+                          top: 12,
+                          right: 12,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.0, end: 1.0),
+                            duration: const Duration(milliseconds: 600),
+                            curve: Curves.elasticOut,
+                            builder: (context, value, child) {
+                              return Transform.scale(
+                                scale: value,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        ThemeConfig.primaryColor,
+                                        ThemeConfig.primaryLightColor,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(25),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: ThemeConfig.primaryColor.withValues(alpha: 0.5),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                        spreadRadius: 2,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.local_offer,
+                                        color: Colors.white,
+                                        size: 14,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        Helpers.formatDiscount(widget.product.discount),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: Text(
-                              Helpers.formatDiscount(widget.product.discount),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12,
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ),
+                      // Rating - Style minimaliste
                       if (widget.product.rating != null)
                         Positioned(
-                          top: 10,
-                          left: 10,
+                          top: 12,
+                          left: 12,
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.6),
-                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
                                   Icons.star,
-                                  color: Colors.amber,
+                                  color: Color(0xFFFFC107),
                                   size: 14,
                                 ),
                                 const SizedBox(width: 4),
@@ -198,6 +230,7 @@ class _ProductCardState extends State<ProductCard>
                     ],
                   ),
                 ),
+                // Informations du produit
                 Expanded(
                   flex: 2,
                   child: Padding(
@@ -205,31 +238,37 @@ class _ProductCardState extends State<ProductCard>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Nom du produit
                         Text(
                           widget.product.name,
                           style: const TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             fontSize: 14,
+                            color: ThemeConfig.textPrimaryColor,
+                            height: 1.2,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const Spacer(),
+                        // Prix et bouton d'ajout au panier
                         Row(
                           children: [
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Prix barré si réduction
                                   if (widget.product.hasDiscount)
                                     Text(
                                       Helpers.formatPrice(widget.product.price),
                                       style: TextStyle(
                                         fontSize: 11,
-                                        color: Colors.grey.shade600,
+                                        color: ThemeConfig.textSecondaryColor,
                                         decoration: TextDecoration.lineThrough,
                                       ),
                                     ),
+                                  // Prix final
                                   Text(
                                     Helpers.formatPrice(
                                       widget.product.finalPrice,
@@ -237,38 +276,41 @@ class _ProductCardState extends State<ProductCard>
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
-                                      color: Color(0xFF667eea),
+                                      color: ThemeConfig.textPrimaryColor,
                                     ),
                                   ),
                                 ],
                               ),
                             ),
+                            // Bouton d'ajout au panier - Orange AMÉLIORÉ
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: widget.onAddToCart,
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(14),
                                 child: Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
-                                        Color(0xFF667eea),
-                                        Color(0xFF764ba2),
+                                        ThemeConfig.primaryColor,
+                                        ThemeConfig.primaryLightColor,
                                       ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
                                     ),
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(14),
                                     boxShadow: [
                                       BoxShadow(
-                                        color:
-                                            const Color(0xFF667eea).withOpacity(0.4),
-                                        blurRadius: 8,
+                                        color: ThemeConfig.primaryColor.withValues(alpha: 0.5),
+                                        blurRadius: 12,
                                         offset: const Offset(0, 4),
+                                        spreadRadius: 1,
                                       ),
                                     ],
                                   ),
                                   child: const Icon(
-                                    Icons.add_shopping_cart,
+                                    Icons.add_shopping_cart_rounded,
                                     color: Colors.white,
                                     size: 20,
                                   ),

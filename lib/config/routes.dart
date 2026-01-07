@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:smartsearch/screens/splash_screen.dart';
-import 'package:smartsearch/screens/home/home_screen.dart';
+import 'package:smartsearch/screens/main/main_screen.dart';
 import 'package:smartsearch/screens/auth/login_screen.dart';
 import 'package:smartsearch/screens/auth/register_screen.dart';
 import 'package:smartsearch/screens/search/text_search_screen.dart';
 import 'package:smartsearch/screens/search/image_search_screen.dart';
+import 'package:smartsearch/screens/search/combined_search_screen.dart';
 import 'package:smartsearch/screens/product/product_detail_screen.dart';
 import 'package:smartsearch/screens/product/product_list_screen.dart';
 import 'package:smartsearch/screens/cart/cart_screen.dart';
 import 'package:smartsearch/screens/profile/profile_screen.dart';
-import 'package:smartsearch/screens/settings/settings_screen.dart';
+import 'package:smartsearch/screens/settings/professional_settings_screen.dart';
 import 'package:smartsearch/screens/onboarding/onboarding_screen.dart';
 import 'package:smartsearch/screens/favorites/favorites_screen.dart';
+import 'package:smartsearch/widgets/app_tour_guide.dart';
 
 /// Configuration des routes de navigation
 class AppRoutes {
@@ -22,6 +24,7 @@ class AppRoutes {
   static const String register = '/register';
   static const String textSearch = '/search/text';
   static const String imageSearch = '/search/image';
+  static const String combinedSearch = '/search/combined';
   static const String productDetail = '/product/detail';
   static const String productList = '/product/list';
   static const String cart = '/cart';
@@ -40,7 +43,9 @@ class AppRoutes {
 
       case home:
         return MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
+          builder: (_) => const AppTourGuide(
+            child: MainScreen(),
+          ),
         );
 
       case login:
@@ -63,6 +68,11 @@ class AppRoutes {
           builder: (_) => const ImageSearchScreen(),
         );
 
+      case combinedSearch:
+        return MaterialPageRoute(
+          builder: (_) => const CombinedSearchScreen(),
+        );
+
       case productDetail:
         final args = routeSettings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
@@ -81,12 +91,12 @@ class AppRoutes {
 
       case profile:
         return MaterialPageRoute(
-          builder: (_) => const ProfileScreen(),
+          builder: (_) => const ProfileScreenSimple(),
         );
 
       case settings:
         return MaterialPageRoute(
-          builder: (_) => const SettingsScreen(),
+          builder: (_) => const ProfessionalSettingsScreen(),
         );
 
       case onboarding:

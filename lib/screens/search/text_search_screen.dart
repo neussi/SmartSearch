@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartsearch/providers/search_provider.dart';
 import 'package:smartsearch/providers/cart_provider.dart';
-import 'package:smartsearch/widgets/animated_gradient_background.dart';
-import 'package:smartsearch/widgets/glassmorphic_card.dart';
 import 'package:smartsearch/widgets/product_card.dart';
-import 'package:smartsearch/widgets/custom_text_field.dart';
-import 'package:smartsearch/widgets/loading_widget.dart';
+import 'package:smartsearch/config/theme_config.dart';
 
 class TextSearchScreen extends StatefulWidget {
   const TextSearchScreen({super.key});
@@ -59,51 +56,89 @@ class _TextSearchScreenState extends State<TextSearchScreen>
     final cartProvider = context.watch<CartProvider>();
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: ThemeConfig.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: ThemeConfig.surfaceColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: ThemeConfig.primaryColor,
+              size: 20,
+            ),
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           'Recherche Textuelle',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: ThemeConfig.textPrimaryColor,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
         ),
       ),
-      body: AnimatedGradientBackground(
-        colors: const [
-          Color(0xFF4facfe),
-          Color(0xFF00f2fe),
-          Color(0xFF43e97b),
-          Color(0xFF38f9d7),
-        ],
-        child: SafeArea(
+      body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Hero(
-                    tag: 'search_bar',
-                    child: Material(
-                      color: Colors.transparent,
-                      child: CustomTextField(
-                        controller: _searchController,
-                        hint: 'Rechercher des produits...',
-                        prefixIcon: const Icon(Icons.search, color: Color(0xFF667eea)),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  searchProvider.clearResults();
-                                },
-                              )
-                            : null,
-                        onChanged: _onSearchChanged,
+                Container(
+                  margin: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: ThemeConfig.surfaceColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _onSearchChanged,
+                    style: const TextStyle(
+                      color: ThemeConfig.textPrimaryColor,
+                      fontSize: 16,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Rechercher des produits...',
+                      hintStyle: TextStyle(
+                        color: ThemeConfig.textSecondaryColor.withValues(alpha: 0.6),
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.search,
+                        color: ThemeConfig.primaryColor,
+                        size: 24,
+                      ),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: ThemeConfig.textSecondaryColor,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                searchProvider.clearResults();
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
                       ),
                     ),
                   ),
@@ -121,7 +156,7 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                             const Text(
                               'Recherches récentes',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: ThemeConfig.textPrimaryColor,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -132,7 +167,7 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                               },
                               child: const Text(
                                 'Effacer',
-                                style: TextStyle(color: Colors.white70),
+                                style: TextStyle(color: ThemeConfig.primaryColor),
                               ),
                             ),
                           ],
@@ -158,27 +193,55 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                   ),
                 const SizedBox(height: 20),
                 if (searchProvider.isLoading)
-                  const Expanded(
-                    child: LoadingWidget(message: 'Recherche en cours...'),
+                  Expanded(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              ThemeConfig.primaryColor,
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'Recherche en cours...',
+                            style: TextStyle(
+                              color: ThemeConfig.textSecondaryColor,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   )
                 else if (searchProvider.errorMessage != null)
                   Expanded(
                     child: Center(
-                      child: GlassmorphicCard(
+                      child: Container(
                         margin: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: ThemeConfig.surfaceColor,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: ThemeConfig.errorColor.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Icon(
                               Icons.error_outline,
                               size: 60,
-                              color: Colors.white,
+                              color: ThemeConfig.errorColor,
                             ),
                             const SizedBox(height: 16),
                             Text(
                               searchProvider.errorMessage!,
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: ThemeConfig.textPrimaryColor,
                                 fontSize: 16,
                               ),
                               textAlign: TextAlign.center,
@@ -192,21 +255,30 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                   Expanded(
                     child: searchProvider.lastSearchResult!.products.isEmpty
                         ? Center(
-                            child: GlassmorphicCard(
+                            child: Container(
                               margin: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.all(32),
+                              decoration: BoxDecoration(
+                                color: ThemeConfig.surfaceColor,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
+                                  width: 1,
+                                ),
+                              ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: const [
                                   Icon(
                                     Icons.search_off,
                                     size: 60,
-                                    color: Colors.white,
+                                    color: ThemeConfig.textSecondaryColor,
                                   ),
                                   SizedBox(height: 16),
                                   Text(
                                     'Aucun résultat trouvé',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: ThemeConfig.textPrimaryColor,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -215,7 +287,7 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                                   Text(
                                     'Essayez une autre recherche',
                                     style: TextStyle(
-                                      color: Colors.white70,
+                                      color: ThemeConfig.textSecondaryColor,
                                       fontSize: 14,
                                     ),
                                   ),
@@ -274,8 +346,7 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                                                 '${product.name} ajouté au panier',
                                               ),
                                               behavior: SnackBarBehavior.floating,
-                                              backgroundColor:
-                                                  const Color(0xFF4facfe),
+                                              backgroundColor: ThemeConfig.primaryColor,
                                               shape: RoundedRectangleBorder(
                                                 borderRadius:
                                                     BorderRadius.circular(12),
@@ -294,21 +365,30 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                 else
                   Expanded(
                     child: Center(
-                      child: GlassmorphicCard(
+                      child: Container(
                         margin: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(40),
+                        decoration: BoxDecoration(
+                          color: ThemeConfig.surfaceColor,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
+                            width: 1,
+                          ),
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: const [
                             Icon(
                               Icons.search,
                               size: 80,
-                              color: Colors.white,
+                              color: ThemeConfig.primaryColor,
                             ),
                             SizedBox(height: 16),
                             Text(
                               'Recherchez des produits',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: ThemeConfig.textPrimaryColor,
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -317,7 +397,7 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                             Text(
                               'Entrez au moins 2 caractères',
                               style: TextStyle(
-                                color: Colors.white70,
+                                color: ThemeConfig.textSecondaryColor,
                                 fontSize: 14,
                               ),
                             ),
@@ -329,7 +409,6 @@ class _TextSearchScreenState extends State<TextSearchScreen>
               ],
             ),
           ),
-        ),
       ),
     );
   }
@@ -349,12 +428,12 @@ class _HistoryChip extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: Colors.white.withOpacity(0.3),
+            color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -364,14 +443,15 @@ class _HistoryChip extends StatelessWidget {
             const Icon(
               Icons.history,
               size: 16,
-              color: Colors.white,
+              color: ThemeConfig.primaryColor,
             ),
             const SizedBox(width: 8),
             Text(
               query,
               style: const TextStyle(
-                color: Colors.white,
+                color: ThemeConfig.textPrimaryColor,
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

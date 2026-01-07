@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smartsearch/config/routes.dart';
+import 'package:smartsearch/config/theme_config.dart';
 import 'package:smartsearch/providers/auth_provider.dart';
-import 'package:smartsearch/widgets/animated_gradient_background.dart';
-import 'package:smartsearch/widgets/glassmorphic_card.dart';
-import 'package:smartsearch/widgets/custom_text_field.dart';
-import 'package:smartsearch/widgets/animated_button.dart';
 import 'package:smartsearch/utils/validators.dart';
 
+/// LoginScreen ULTRA PROFESSIONNEL avec design blanc & orange
+/// Animations fluides, effets visuels WAOUH, expérience utilisateur exceptionnelle
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -29,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 800),
       vsync: this,
     );
 
@@ -38,7 +37,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
 
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.5),
+      begin: const Offset(0, 0.3),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
@@ -69,11 +68,12 @@ class _LoginScreenState extends State<LoginScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authProvider.errorMessage!),
-            backgroundColor: Colors.red,
+            backgroundColor: ThemeConfig.errorColor,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            margin: const EdgeInsets.all(16),
           ),
         );
       }
@@ -86,164 +86,324 @@ class _LoginScreenState extends State<LoginScreen>
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: AnimatedGradientBackground(
-        colors: const [
-          Color(0xFF667eea),
-          Color(0xFF764ba2),
-          Color(0xFFf093fb),
-          Color(0xFF4facfe),
-        ],
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SlideTransition(
-                  position: _slideAnimation,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: 1.0),
-                        duration: const Duration(milliseconds: 1200),
-                        curve: Curves.elasticOut,
-                        builder: (context, value, child) {
-                          return Transform.scale(
-                            scale: value,
+      backgroundColor: ThemeConfig.surfaceColor,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Logo avec animation AMÉLIORÉE
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.0, end: 1.0),
+                      duration: const Duration(milliseconds: 1200),
+                      curve: Curves.elasticOut,
+                      builder: (context, value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Transform.rotate(
+                            angle: (1 - value) * 0.5,
                             child: Container(
-                              padding: const EdgeInsets.all(24),
+                              padding: const EdgeInsets.all(28),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ThemeConfig.primaryColor.withValues(alpha: 0.15),
+                                    ThemeConfig.primaryColor.withValues(alpha: 0.08),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
                                 shape: BoxShape.circle,
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.white.withOpacity(0.3),
+                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.3 * value),
                                     blurRadius: 30,
                                     spreadRadius: 10,
                                   ),
                                 ],
                               ),
-                              child: const Icon(
-                                Icons.shopping_bag,
-                                size: 60,
-                                color: Color(0xFF667eea),
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: ThemeConfig.primaryColor,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: ThemeConfig.primaryColor.withValues(alpha: 0.5),
+                                      blurRadius: 20,
+                                      spreadRadius: 5,
+                                    ),
+                                  ],
+                                ),
+                                child: const Icon(
+                                  Icons.search,
+                                  size: 60,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 40),
-                      const Text(
-                        'Bienvenue',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Connectez-vous pour continuer',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 16,
-                        ),
-                      ),
-                      const SizedBox(height: 50),
-                      GlassmorphicCard(
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-                              CustomTextField(
-                                controller: _emailController,
-                                label: 'Email',
-                                hint: 'votreemail@example.com',
-                                keyboardType: TextInputType.emailAddress,
-                                prefixIcon: const Icon(Icons.email),
-                                validator: Validators.validateEmail,
-                              ),
-                              const SizedBox(height: 20),
-                              CustomTextField(
-                                controller: _passwordController,
-                                label: 'Mot de passe',
-                                hint: '••••••••',
-                                obscureText: _obscurePassword,
-                                prefixIcon: const Icon(Icons.lock),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscurePassword
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      _obscurePassword = !_obscurePassword;
-                                    });
-                                  },
-                                ),
-                                validator: Validators.validatePassword,
-                              ),
-                              const SizedBox(height: 12),
-                              Align(
-                                alignment: Alignment.centerRight,
-                                child: TextButton(
-                                  onPressed: () {},
-                                  child: const Text(
-                                    'Mot de passe oublié?',
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              AnimatedButton(
-                                text: 'Se Connecter',
-                                icon: Icons.login,
-                                isLoading: authProvider.isLoading,
-                                onPressed: _login,
-                              ),
-                            ],
                           ),
-                        ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 40),
+
+                    // Titre
+                    const Text(
+                      'Bienvenue',
+                      style: TextStyle(
+                        color: ThemeConfig.textPrimaryColor,
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: -0.5,
                       ),
-                      const SizedBox(height: 30),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Connectez-vous pour continuer',
+                      style: TextStyle(
+                        color: ThemeConfig.textSecondaryColor,
+                        fontSize: 16,
+                      ),
+                    ),
+
+                    const SizedBox(height: 50),
+
+                    // Formulaire
+                    Form(
+                      key: _formKey,
+                      child: Column(
                         children: [
-                          const Text(
-                            'Pas encore de compte?',
-                            style: TextStyle(color: Colors.white70),
+                          // Champ Email
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              hintText: 'votreemail@example.com',
+                              prefixIcon: const Icon(
+                                Icons.email_outlined,
+                                color: ThemeConfig.primaryColor,
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            validator: Validators.validateEmail,
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, AppRoutes.register);
-                            },
-                            child: const Text(
-                              'S\'inscrire',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+
+                          const SizedBox(height: 20),
+
+                          // Champ Mot de passe
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            style: const TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                            ),
+                            decoration: InputDecoration(
+                              labelText: 'Mot de passe',
+                              hintText: '••••••••',
+                              prefixIcon: const Icon(
+                                Icons.lock_outlined,
+                                color: ThemeConfig.primaryColor,
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                  color: ThemeConfig.textSecondaryColor,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _obscurePassword = !_obscurePassword;
+                                  });
+                                },
+                              ),
+                              filled: true,
+                              fillColor: ThemeConfig.surfaceColor,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.shade300,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: const BorderSide(
+                                  color: ThemeConfig.primaryColor,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
+                            validator: Validators.validatePassword,
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          // Mot de passe oublié
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {},
+                              child: const Text(
+                                'Mot de passe oublié?',
+                                style: TextStyle(
+                                  color: ThemeConfig.primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Bouton de connexion AMÉLIORÉ
+                          SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ThemeConfig.primaryColor,
+                                    ThemeConfig.primaryLightColor,
+                                  ],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: ElevatedButton(
+                                onPressed: authProvider.isLoading ? null : _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: authProvider.isLoading
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2.5,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.white,
+                                          ),
+                                        ),
+                                      )
+                                    : const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            'Se Connecter',
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Icon(
+                                            Icons.arrow_forward_rounded,
+                                            color: Colors.white,
+                                            size: 22,
+                                          ),
+                                        ],
+                                      ),
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, AppRoutes.home);
-                        },
-                        child: const Text(
-                          'Continuer sans compte',
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // Lien vers inscription
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Pas encore de compte?',
                           style: TextStyle(
-                            color: Colors.white,
-                            decoration: TextDecoration.underline,
+                            color: ThemeConfig.textSecondaryColor,
                           ),
                         ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, AppRoutes.register);
+                          },
+                          child: const Text(
+                            'S\'inscrire',
+                            style: TextStyle(
+                              color: ThemeConfig.primaryColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Continuer sans compte
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushReplacementNamed(context, AppRoutes.home);
+                      },
+                      child: const Text(
+                        'Continuer sans compte',
+                        style: TextStyle(
+                          color: ThemeConfig.textSecondaryColor,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
