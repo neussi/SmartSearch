@@ -398,34 +398,43 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.productList);
+                      },
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Voir tout',
-                          style: TextStyle(
-                            color: ThemeConfig.primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
+                            width: 1,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          color: ThemeConfig.primaryColor,
-                          size: 12,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Voir tout',
+                              style: TextStyle(
+                                color: ThemeConfig.primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: ThemeConfig.primaryColor,
+                              size: 12,
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ],

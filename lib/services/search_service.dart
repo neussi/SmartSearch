@@ -1,10 +1,12 @@
 import 'dart:typed_data';
+import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:smartsearch/config/api_config.dart';
 import 'package:smartsearch/models/product.dart';
 import 'package:smartsearch/models/search_result.dart';
 import 'package:smartsearch/services/api_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart' as http_parser;
 import 'dart:convert';
 
 /// Service pour la recherche de produits (compatible web et mobile)
@@ -55,26 +57,33 @@ class SearchService {
     int? limit,
   }) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.searchImageEndpoint}');
+      // Construire l'URL avec le paramètre top_k en query
+      String endpoint = ApiConfig.searchImageEndpoint;
+      if (limit != null) {
+        endpoint += '?top_k=$limit';
+      }
+      final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
+      
+      print('🔍 Image Search URL: $url');
+      print('📸 Image size: ${imageBytes.length} bytes');
       
       var request = http.MultipartRequest('POST', url);
       
-      // Ajouter l'image
+      // Ajouter l'image avec le bon content-type
       request.files.add(
         http.MultipartFile.fromBytes(
           'file',
           imageBytes,
           filename: fileName,
+          contentType: http_parser.MediaType('image', 'jpeg'),
         ),
       );
-      
-      // Ajouter topK si fourni
-      if (limit != null) {
-        request.fields['top_k'] = limit.toString();
-      }
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
+
+      print('📡 Response status: ${response.statusCode}');
+      print('📄 Response body: ${response.body.substring(0, min(200, response.body.length))}');
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -92,9 +101,11 @@ class SearchService {
           timestamp: DateTime.now(),
         );
       } else {
-        throw Exception('Erreur de recherche: ${response.statusCode}');
+        print('❌ Error response: ${response.body}');
+        throw Exception('Erreur de recherche: ${response.statusCode} - ${response.body}');
       }
     } catch (e) {
+      print('❌ Exception: $e');
       rethrow;
     }
   }
@@ -109,7 +120,13 @@ class SearchService {
     int? limit,
   }) async {
     try {
-      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.searchMultimodalEndpoint}');
+      // Construire l'URL avec les paramètres en query
+      String endpoint = ApiConfig.searchMultimodalEndpoint;
+      endpoint += '?alpha=$textWeight&beta=$imageWeight';
+      if (limit != null) {
+        endpoint += '&top_k=$limit';
+      }
+      final url = Uri.parse('${ApiConfig.baseUrl}$endpoint');
       
       var request = http.MultipartRequest('POST', url);
       
@@ -122,14 +139,8 @@ class SearchService {
         ),
       );
       
-      // Ajouter les champs
+      // Ajouter le texte en form field
       request.fields['text'] = textQuery;
-      request.fields['alpha'] = textWeight.toString();
-      request.fields['beta'] = imageWeight.toString();
-      
-      if (limit != null) {
-        request.fields['top_k'] = limit.toString();
-      }
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

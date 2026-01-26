@@ -301,41 +301,47 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    OutlinedButton.icon(
-                      onPressed: () {
-                        setState(() {
-                          _selectedImageBytes = null;
-                          _selectedImageName = null;
-                        });
-                        searchProvider.clearResults();
-                      },
-                      icon: const Icon(Icons.refresh),
-                      label: const Text('Nouvelle Image'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: ThemeConfig.primaryColor,
-                        side: const BorderSide(color: ThemeConfig.primaryColor),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _selectedImageBytes = null;
+                            _selectedImageName = null;
+                          });
+                          searchProvider.clearResults();
+                        },
+                        icon: const Icon(Icons.refresh, size: 18),
+                        label: const Text('Nouvelle'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: ThemeConfig.primaryColor,
+                          side: const BorderSide(color: ThemeConfig.primaryColor),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
                       ),
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            ThemeConfig.primaryColor,
-                            ThemeConfig.primaryLightColor,
-                          ],
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              ThemeConfig.primaryColor,
+                              ThemeConfig.primaryLightColor,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ElevatedButton.icon(
-                        onPressed: _searchByImage,
-                        icon: const Icon(Icons.search),
-                        label: const Text('Rechercher'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          foregroundColor: Colors.white,
+                        child: ElevatedButton.icon(
+                          onPressed: _searchByImage,
+                          icon: const Icon(Icons.search, size: 18),
+                          label: const Text('Rechercher'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
                         ),
                       ),
                     ),

@@ -76,6 +76,13 @@ class Product extends Equatable {
       imgUrl = json['imageUrl'] ?? json['image_url'] ?? '';
     }
 
+    // Corriger l'URL si elle pointe vers localhost
+    if (imgUrl.isNotEmpty) {
+      imgUrl = imgUrl.replaceAll('localhost:8000', '185.198.27.20:9000');
+      imgUrl = imgUrl.replaceAll('http://localhost:8000', 'http://185.198.27.20:9000');
+      imgUrl = imgUrl.replaceAll('https://localhost:8000', 'http://185.198.27.20:9000');
+    }
+
     return Product(
       id: json['product_id']?.toString() ?? json['id']?.toString() ?? '',
       name: json['nom'] ?? json['name'] ?? '',
