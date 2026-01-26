@@ -48,18 +48,46 @@ class Product extends Equatable {
 
   /// Factory pour créer un Product depuis JSON
   factory Product.fromJson(Map<String, dynamic> json) {
+    // Helper pour parser le prix (ex: "150,000CFA" -> 150000.0)
+    double parsePrice(dynamic val) {
+      if (val is num) return val.toDouble();
+      if (val is String) {
+        // Enlever tout sauf les chiffres
+        String cleaned = val.replaceAll(RegExp(r'[^0-9]'), '');
+        return double.tryParse(cleaned) ?? 0.0;
+      }
+      return 0.0;
+    }
+
+    // Helper pour parser la réduction (ex: "-17%" -> 17.0)
+    double parseDiscount(dynamic val) {
+      if (val is num) return val.toDouble();
+      if (val is String) {
+        String cleaned = val.replaceAll(RegExp(r'[^0-9.]'), '');
+        return double.tryParse(cleaned) ?? 0.0;
+      }
+      return 0.0;
+    }
+
+    String imgUrl = '';
+    if (json['images'] != null && json['images'] is List && (json['images'] as List).isNotEmpty) {
+      imgUrl = (json['images'] as List)[0];
+    } else {
+      imgUrl = json['imageUrl'] ?? json['image_url'] ?? '';
+    }
+
     return Product(
-      id: json['id']?.toString() ?? '',
-      name: json['name'] ?? '',
+      id: json['product_id']?.toString() ?? json['id']?.toString() ?? '',
+      name: json['nom'] ?? json['name'] ?? '',
       description: json['description'] ?? '',
-      price: (json['price'] ?? 0).toDouble(),
-      discount: (json['discount'] ?? 0).toDouble(),
-      imageUrl: json['imageUrl'] ?? json['image_url'] ?? '',
-      category: json['category'],
-      subCategory: json['subCategory'] ?? json['sub_category'],
+      price: parsePrice(json['prix_apres'] ?? json['price']),
+      discount: parseDiscount(json['reduction'] ?? json['discount']),
+      imageUrl: imgUrl,
+      category: json['categorie'] ?? json['category'],
+      subCategory: json['sous_categorie'] ?? json['subCategory'] ?? json['sub_category'],
       popularity: json['popularity']?.toDouble(),
       rating: json['rating']?.toDouble(),
-      similarityScore: json['similarityScore']?.toDouble() ?? json['similarity_score']?.toDouble(),
+      similarityScore: json['similarity_score']?.toDouble() ?? json['similarityScore']?.toDouble(),
     );
   }
 

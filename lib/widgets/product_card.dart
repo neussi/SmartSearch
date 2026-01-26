@@ -234,36 +234,40 @@ class _ProductCardState extends State<ProductCard>
                 Expanded(
                   flex: 2,
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         // Nom du produit
-                        Text(
-                          widget.product.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
-                            color: ThemeConfig.textPrimaryColor,
-                            height: 1.2,
+                        Expanded(
+                          child: Text(
+                            widget.product.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: ThemeConfig.textPrimaryColor,
+                              height: 1.2,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                        const Spacer(),
+                        const SizedBox(height: 4),
                         // Prix et bouton d'ajout au panier
                         Row(
                           children: [
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   // Prix barré si réduction
                                   if (widget.product.hasDiscount)
                                     Text(
                                       Helpers.formatPrice(widget.product.price),
-                                      style: TextStyle(
-                                        fontSize: 11,
+                                      style: const TextStyle(
+                                        fontSize: 10,
                                         color: ThemeConfig.textSecondaryColor,
                                         decoration: TextDecoration.lineThrough,
                                       ),
@@ -275,7 +279,7 @@ class _ProductCardState extends State<ProductCard>
                                     ),
                                     style: const TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       color: ThemeConfig.textPrimaryColor,
                                     ),
                                   ),
@@ -287,9 +291,9 @@ class _ProductCardState extends State<ProductCard>
                               color: Colors.transparent,
                               child: InkWell(
                                 onTap: widget.onAddToCart,
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Container(
-                                  padding: const EdgeInsets.all(12),
+                                  padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
@@ -299,20 +303,19 @@ class _ProductCardState extends State<ProductCard>
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
-                                    borderRadius: BorderRadius.circular(14),
+                                    borderRadius: BorderRadius.circular(12),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: ThemeConfig.primaryColor.withValues(alpha: 0.5),
-                                        blurRadius: 12,
-                                        offset: const Offset(0, 4),
-                                        spreadRadius: 1,
+                                        color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 3),
                                       ),
                                     ],
                                   ),
                                   child: const Icon(
                                     Icons.add_shopping_cart_rounded,
                                     color: Colors.white,
-                                    size: 20,
+                                    size: 18,
                                   ),
                                 ),
                               ),

@@ -1,7 +1,7 @@
 /// Configuration de l'API Backend
 class ApiConfig {
   // Base URL - À modifier selon l'environnement
-  static const String baseUrl = 'http://localhost:8080/api';
+  static const String baseUrl = 'http://185.198.27.20:9000/api';
 
   // Endpoints
   static const String loginEndpoint = '/auth/login';
@@ -13,9 +13,9 @@ class ApiConfig {
   static const String searchMultimodalEndpoint = '/search/multimodal';
 
   // Product Endpoints
-  static const String productsEndpoint = '/products';
+  static const String productsEndpoint = '/product/all';
   static String productDetailEndpoint(String id) => '/product/$id';
-  static const String categoriesEndpoint = '/categories';
+  static const String categoriesEndpoint = '/product/category/all';
 
   // Cart Endpoints
   static const String cartEndpoint = '/cart';

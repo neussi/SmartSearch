@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:smartsearch/models/search_result.dart';
 import 'package:smartsearch/services/search_service.dart';
@@ -50,9 +50,10 @@ class SearchProvider with ChangeNotifier {
     }
   }
 
-  /// Recherche par image
+  /// Recherche par image (compatible web et mobile)
   Future<void> searchByImage({
-    required File imageFile,
+    required Uint8List imageBytes,
+    required String fileName,
     int? limit,
   }) async {
     _setLoading(true);
@@ -60,7 +61,8 @@ class SearchProvider with ChangeNotifier {
 
     try {
       _lastSearchResult = await _searchService.searchByImage(
-        imageFile: imageFile,
+        imageBytes: imageBytes,
+        fileName: fileName,
         limit: limit,
       );
 
@@ -73,12 +75,13 @@ class SearchProvider with ChangeNotifier {
     }
   }
 
-  /// Recherche multimodale
+  /// Recherche multimodale (compatible web et mobile)
   Future<void> searchMultimodal({
     required String textQuery,
-    required File imageFile,
-    double textWeight = 0.5,
-    double imageWeight = 0.5,
+    required Uint8List imageBytes,
+    required String fileName,
+    double textWeight = 0.6,
+    double imageWeight = 0.4,
     int? limit,
   }) async {
     if (textQuery.trim().isEmpty) {
@@ -92,7 +95,8 @@ class SearchProvider with ChangeNotifier {
     try {
       _lastSearchResult = await _searchService.searchMultimodal(
         textQuery: textQuery,
-        imageFile: imageFile,
+        imageBytes: imageBytes,
+        fileName: fileName,
         textWeight: textWeight,
         imageWeight: imageWeight,
         limit: limit,

@@ -1,5 +1,6 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:smartsearch/providers/search_provider.dart';
@@ -7,6 +8,7 @@ import 'package:smartsearch/providers/cart_provider.dart';
 import 'package:smartsearch/widgets/product_card.dart';
 import 'package:smartsearch/config/theme_config.dart';
 
+/// ImageSearchScreen compatible web et mobile
 class ImageSearchScreen extends StatefulWidget {
   const ImageSearchScreen({super.key});
 
@@ -16,7 +18,8 @@ class ImageSearchScreen extends StatefulWidget {
 
 class _ImageSearchScreenState extends State<ImageSearchScreen>
     with TickerProviderStateMixin {
-  File? _selectedImage;
+  Uint8List? _selectedImageBytes;
+  String? _selectedImageName;
   final ImagePicker _picker = ImagePicker();
   late AnimationController _pulseController;
   late AnimationController _fadeController;
@@ -64,25 +67,32 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
       );
 
       if (image != null) {
+        final bytes = await image.readAsBytes();
         setState(() {
-          _selectedImage = File(image.path);
+          _selectedImageBytes = bytes;
+          _selectedImageName = image.name;
         });
         _searchByImage();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur lors de la sélection de l\'image: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur lors de la sélection de l\'image: $e'),
+            backgroundColor: ThemeConfig.errorColor,
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
     }
   }
 
   Future<void> _searchByImage() async {
-    if (_selectedImage != null) {
+    if (_selectedImageBytes != null && _selectedImageName != null) {
       await context.read<SearchProvider>().searchByImage(
-            imageFile: _selectedImage!,
+            imageBytes: _selectedImageBytes!,
+            fileName: _selectedImageName!,
           );
     }
   }
@@ -121,12 +131,13 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
           ),
         ),
         actions: [
-          if (_selectedImage != null)
+          if (_selectedImageBytes != null)
             IconButton(
               icon: const Icon(Icons.clear, color: ThemeConfig.primaryColor),
               onPressed: () {
                 setState(() {
-                  _selectedImage = null;
+                  _selectedImageBytes = null;
+                  _selectedImageName = null;
                 });
                 searchProvider.clearResults();
               },
@@ -134,12 +145,12 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
         ],
       ),
       body: SafeArea(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: _selectedImage == null
-                ? _buildImagePicker()
-                : _buildSearchResults(searchProvider, cartProvider),
-          ),
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: _selectedImageBytes == null
+              ? _buildImagePicker()
+              : _buildSearchResults(searchProvider, cartProvider),
+        ),
       ),
     );
   }
@@ -198,26 +209,45 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 60),
-            ElevatedButton.icon(
-              onPressed: () => _pickImage(ImageSource.camera),
-              icon: const Icon(Icons.camera_alt),
-              label: const Text('Prendre une Photo'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: ThemeConfig.primaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                minimumSize: const Size(double.infinity, 56),
-                shape: RoundedRectangleBorder(
+            if (!kIsWeb)
+              Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [
+                      ThemeConfig.primaryColor,
+                      ThemeConfig.primaryLightColor,
+                    ],
+                  ),
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
                 ),
-                elevation: 0,
+                child: ElevatedButton.icon(
+                  onPressed: () => _pickImage(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt),
+                  label: const Text('Prendre une Photo'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    minimumSize: const Size(double.infinity, 56),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
+            if (!kIsWeb) const SizedBox(height: 16),
             OutlinedButton.icon(
               onPressed: () => _pickImage(ImageSource.gallery),
               icon: const Icon(Icons.photo_library),
-              label: const Text('Choisir depuis la Galerie'),
+              label: Text(kIsWeb ? 'Choisir une Image' : 'Choisir depuis la Galerie'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: ThemeConfig.primaryColor,
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
@@ -261,8 +291,8 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: Image.file(
-                  _selectedImage!,
+                child: Image.memory(
+                  _selectedImageBytes!,
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -276,7 +306,8 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                     OutlinedButton.icon(
                       onPressed: () {
                         setState(() {
-                          _selectedImage = null;
+                          _selectedImageBytes = null;
+                          _selectedImageName = null;
                         });
                         searchProvider.clearResults();
                       },
@@ -287,13 +318,25 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                         side: const BorderSide(color: ThemeConfig.primaryColor),
                       ),
                     ),
-                    ElevatedButton.icon(
-                      onPressed: _searchByImage,
-                      icon: const Icon(Icons.search),
-                      label: const Text('Rechercher'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ThemeConfig.primaryColor,
-                        foregroundColor: Colors.white,
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            ThemeConfig.primaryColor,
+                            ThemeConfig.primaryLightColor,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButton.icon(
+                        onPressed: _searchByImage,
+                        icon: const Icon(Icons.search),
+                        label: const Text('Rechercher'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                        ),
                       ),
                     ),
                   ],
@@ -304,11 +347,11 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
         ),
         const SizedBox(height: 20),
         if (searchProvider.isLoading)
-          Expanded(
+          const Expanded(
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(
                       ThemeConfig.primaryColor,
@@ -377,9 +420,9 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                           width: 1,
                         ),
                       ),
-                      child: Column(
+                      child: const Column(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Icon(
                             Icons.search_off,
                             size: 60,
@@ -458,6 +501,7 @@ class _ImageSearchScreenState extends State<ImageSearchScreen>
                                               borderRadius:
                                                   BorderRadius.circular(12),
                                             ),
+                                            margin: const EdgeInsets.all(16),
                                           ),
                                         );
                                       },

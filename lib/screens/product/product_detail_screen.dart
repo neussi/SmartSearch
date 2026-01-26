@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
+import 'package:smartsearch/config/theme_config.dart';
 import 'package:smartsearch/providers/product_provider.dart';
 import 'package:smartsearch/providers/cart_provider.dart';
-import 'package:smartsearch/widgets/glassmorphic_card.dart';
-import 'package:smartsearch/widgets/animated_button.dart';
 import 'package:smartsearch/widgets/loading_widget.dart';
 import 'package:smartsearch/utils/helpers.dart';
 
+/// ProductDetailScreen avec design blanc & orange cohérent
 class ProductDetailScreen extends StatefulWidget {
   final String productId;
 
@@ -66,13 +66,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
 
     if (productProvider.isLoading) {
       return const Scaffold(
+        backgroundColor: ThemeConfig.backgroundColor,
         body: LoadingWidget(message: 'Chargement du produit...'),
       );
     }
 
     if (productProvider.selectedProduct == null) {
       return Scaffold(
+        backgroundColor: ThemeConfig.backgroundColor,
         appBar: AppBar(
+          backgroundColor: ThemeConfig.surfaceColor,
           title: const Text('Produit'),
         ),
         body: const Center(
@@ -84,111 +87,99 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     final product = productProvider.selectedProduct!;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
+      backgroundColor: ThemeConfig.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: ThemeConfig.surfaceColor,
         elevation: 0,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-              ),
-            ],
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(
+              Icons.arrow_back,
+              color: ThemeConfig.primaryColor,
+              size: 20,
+            ),
           ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.pop(context),
-          ),
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                ),
-              ],
+          IconButton(
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.favorite_border,
+                color: ThemeConfig.primaryColor,
+                size: 20,
+              ),
             ),
-            child: IconButton(
-              icon: const Icon(Icons.favorite_border, color: Colors.black),
-              onPressed: () {},
-            ),
+            onPressed: () {},
           ),
+          const SizedBox(width: 12),
         ],
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.grey.shade100,
-                  Colors.white,
-                ],
-              ),
-            ),
-          ),
           SingleChildScrollView(
             physics: const BouncingScrollPhysics(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Image du produit
                 Hero(
                   tag: 'product_${product.id}',
                   child: Container(
-                    height: size.height * 0.5,
+                    height: size.height * 0.4,
                     width: double.infinity,
+                    margin: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40),
+                      color: ThemeConfig.surfaceColor,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: ThemeConfig.primaryColor.withValues(alpha: 0.15),
+                        width: 1,
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
                           blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          offset: const Offset(0, 8),
                         ),
                       ],
                     ),
                     child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40),
-                      ),
+                      borderRadius: BorderRadius.circular(24),
                       child: CachedNetworkImage(
                         imageUrl: product.imageUrl,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Container(
-                          color: Colors.grey.shade200,
+                          color: ThemeConfig.backgroundColor,
                           child: const Center(
-                            child: CircularProgressIndicator(),
+                            child: CircularProgressIndicator(
+                              color: ThemeConfig.primaryColor,
+                            ),
                           ),
                         ),
                         errorWidget: (context, url, error) => Container(
-                          color: Colors.grey.shade200,
+                          color: ThemeConfig.backgroundColor,
                           child: const Icon(
                             Icons.image_not_supported,
                             size: 80,
-                            color: Colors.grey,
+                            color: ThemeConfig.textSecondaryColor,
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
+
                 FadeTransition(
                   opacity: _fadeAnimation,
                   child: SlideTransition(
@@ -198,6 +189,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // Badges (promotion et note)
                           Row(
                             children: [
                               if (product.hasDiscount)
@@ -209,17 +201,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
                                       colors: [
-                                        Color(0xFFFF6B6B),
-                                        Color(0xFFEE5A6F),
+                                        ThemeConfig.errorColor,
+                                        ThemeConfig.errorColor,
                                       ],
                                     ),
                                     borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: ThemeConfig.errorColor.withValues(alpha: 0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
                                   child: Text(
                                     Helpers.formatDiscount(product.discount),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
+                                      fontSize: 12,
                                     ),
                                   ),
                                 ),
@@ -233,6 +233,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                   decoration: BoxDecoration(
                                     color: Colors.amber,
                                     borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.amber.withValues(alpha: 0.3),
+                                        blurRadius: 8,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
@@ -248,6 +255,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                         style: const TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
+                                          fontSize: 12,
                                         ),
                                       ),
                                     ],
@@ -257,14 +265,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                             ],
                           ),
                           const SizedBox(height: 16),
+
+                          // Nom du produit
                           Text(
                             product.name,
                             style: const TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.bold,
+                              color: ThemeConfig.textPrimaryColor,
+                              height: 1.2,
                             ),
                           ),
                           const SizedBox(height: 8),
+
+                          // Catégorie
                           if (product.category != null)
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -272,26 +286,33 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF667eea).withOpacity(0.1),
+                                color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
                               ),
                               child: Text(
                                 product.category!,
                                 style: const TextStyle(
-                                  color: Color(0xFF667eea),
+                                  color: ThemeConfig.primaryColor,
                                   fontWeight: FontWeight.w600,
+                                  fontSize: 14,
                                 ),
                               ),
                             ),
                           const SizedBox(height: 24),
+
+                          // Prix
                           Row(
                             children: [
                               if (product.hasDiscount)
                                 Text(
                                   Helpers.formatPrice(product.price),
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 20,
-                                    color: Colors.grey.shade600,
+                                    color: ThemeConfig.textSecondaryColor,
                                     decoration: TextDecoration.lineThrough,
                                   ),
                                 ),
@@ -301,34 +322,40 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                 style: const TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF667eea),
+                                  color: ThemeConfig.primaryColor,
                                 ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 24),
+
+                          // Description
                           const Text(
                             'Description',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: ThemeConfig.textPrimaryColor,
                             ),
                           ),
                           const SizedBox(height: 12),
                           Text(
                             product.description,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               height: 1.6,
-                              color: Colors.grey.shade700,
+                              color: ThemeConfig.textSecondaryColor,
                             ),
                           ),
                           const SizedBox(height: 32),
+
+                          // Quantité
                           const Text(
                             'Quantité',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: ThemeConfig.textPrimaryColor,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -351,14 +378,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                   vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
+                                  color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
+                                    width: 2,
+                                  ),
                                 ),
                                 child: Text(
                                   _quantity.toString(),
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
+                                    color: ThemeConfig.primaryColor,
                                   ),
                                 ),
                               ),
@@ -372,7 +404,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                               ),
                             ],
                           ),
-                          const SizedBox(height: 100),
+                          const SizedBox(height: 120),
                         ],
                       ),
                     ),
@@ -381,6 +413,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
               ],
             ),
           ),
+
+          // Bouton Ajouter au panier (fixé en bas)
           Positioned(
             bottom: 0,
             left: 0,
@@ -388,57 +422,113 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: ThemeConfig.surfaceColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
                     blurRadius: 20,
-                    offset: const Offset(0, -10),
+                    offset: const Offset(0, -4),
                   ),
                 ],
               ),
               child: SafeArea(
-                child: AnimatedButton(
-                  text: 'Ajouter au Panier',
-                  icon: Icons.shopping_cart,
-                  isLoading: cartProvider.isLoading,
-                  onPressed: () async {
-                    final success = await cartProvider.addToCart(
-                      productId: product.id,
-                      quantity: _quantity,
-                    );
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          ThemeConfig.primaryColor,
+                          ThemeConfig.primaryLightColor,
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                          blurRadius: 20,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: ElevatedButton(
+                      onPressed: cartProvider.isLoading
+                          ? null
+                          : () async {
+                              final success = await cartProvider.addToCart(
+                                productId: product.id,
+                                quantity: _quantity,
+                              );
 
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            '$_quantity x ${product.name} ajouté au panier',
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          backgroundColor: const Color(0xFF667eea),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          action: SnackBarAction(
-                            label: 'Voir',
-                            textColor: Colors.white,
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/cart');
+                              if (success && mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '$_quantity x ${product.name} ajouté au panier',
+                                    ),
+                                    behavior: SnackBarBehavior.floating,
+                                    backgroundColor: ThemeConfig.primaryColor,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    action: SnackBarAction(
+                                      label: 'Voir',
+                                      textColor: Colors.white,
+                                      onPressed: () {
+                                        Navigator.pushNamed(context, '/cart');
+                                      },
+                                    ),
+                                    margin: const EdgeInsets.all(16),
+                                  ),
+                                );
+                              } else if (!success && mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      cartProvider.errorMessage ?? 'Erreur lors de l\'ajout',
+                                    ),
+                                    backgroundColor: ThemeConfig.errorColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    margin: const EdgeInsets.all(16),
+                                  ),
+                                );
+                              }
                             },
-                          ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        shadowColor: Colors.transparent,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            cartProvider.errorMessage ?? 'Erreur lors de l\'ajout',
-                          ),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
-                    }
-                  },
+                      ),
+                      child: cartProvider.isLoading
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.shopping_cart, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Ajouter au Panier',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -452,31 +542,25 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     required IconData icon,
     required VoidCallback onPressed,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-        ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onPressed,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF667eea).withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onPressed,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            child: Icon(
-              icon,
-              color: Colors.white,
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.3),
+              width: 2,
             ),
+          ),
+          child: Icon(
+            icon,
+            color: ThemeConfig.primaryColor,
+            size: 24,
           ),
         ),
       ),

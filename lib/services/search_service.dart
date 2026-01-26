@@ -1,10 +1,13 @@
-import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:smartsearch/config/api_config.dart';
 import 'package:smartsearch/models/product.dart';
 import 'package:smartsearch/models/search_result.dart';
 import 'package:smartsearch/services/api_service.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-/// Service pour la recherche de produits
+/// Service pour la recherche de produits (compatible web et mobile)
 class SearchService {
   final ApiService _apiService;
 
@@ -16,18 +19,18 @@ class SearchService {
     int? limit,
   }) async {
     try {
-      final queryParams = <String, String>{
+      final body = <String, dynamic>{
         'query': query,
-        if (limit != null) 'limit': limit.toString(),
+        if (limit != null) 'top_k': limit,
       };
 
-      final response = await _apiService.get(
+      final response = await _apiService.post(
         ApiConfig.searchTextEndpoint,
-        queryParameters: queryParams,
+        body: body,
       );
 
-      final productsData = response['products'] ?? response['results'] ?? [];
-      final totalResults = response['total'] ?? response['totalResults'] ?? productsData.length;
+      final productsData = response['results'] ?? [];
+      final totalResults = response['count'] ?? productsData.length;
 
       final products = (productsData as List<dynamic>)
           .map((json) => Product.fromJson(json))
@@ -45,79 +48,111 @@ class SearchService {
     }
   }
 
-  /// Recherche par image
+  /// Recherche par image (compatible web et mobile)
   Future<SearchResult> searchByImage({
-    required File imageFile,
+    required Uint8List imageBytes,
+    required String fileName,
     int? limit,
   }) async {
     try {
-      final additionalFields = <String, String>{};
+      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.searchImageEndpoint}');
+      
+      var request = http.MultipartRequest('POST', url);
+      
+      // Ajouter l'image
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          imageBytes,
+          filename: fileName,
+        ),
+      );
+      
+      // Ajouter topK si fourni
       if (limit != null) {
-        additionalFields['limit'] = limit.toString();
+        request.fields['top_k'] = limit.toString();
       }
 
-      final response = await _apiService.uploadMultipart(
-        ApiConfig.searchImageEndpoint,
-        file: imageFile,
-        fieldName: 'image',
-        additionalFields: additionalFields,
-      );
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-      final productsData = response['products'] ?? response['results'] ?? [];
-      final totalResults = response['total'] ?? response['totalResults'] ?? productsData.length;
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final productsData = data['results'] ?? [];
+        final totalResults = data['count'] ?? productsData.length;
 
-      final products = (productsData as List<dynamic>)
-          .map((json) => Product.fromJson(json))
-          .toList();
+        final products = (productsData as List<dynamic>)
+            .map((json) => Product.fromJson(json))
+            .toList();
 
-      return SearchResult(
-        products: products,
-        searchType: SearchType.image,
-        totalResults: totalResults,
-        timestamp: DateTime.now(),
-      );
+        return SearchResult(
+          products: products,
+          searchType: SearchType.image,
+          totalResults: totalResults,
+          timestamp: DateTime.now(),
+        );
+      } else {
+        throw Exception('Erreur de recherche: ${response.statusCode}');
+      }
     } catch (e) {
       rethrow;
     }
   }
 
-  /// Recherche multimodale (texte + image)
+  /// Recherche multimodale (texte + image, compatible web et mobile)
   Future<SearchResult> searchMultimodal({
     required String textQuery,
-    required File imageFile,
-    double textWeight = 0.5,
-    double imageWeight = 0.5,
+    required Uint8List imageBytes,
+    required String fileName,
+    double textWeight = 0.6,
+    double imageWeight = 0.4,
     int? limit,
   }) async {
     try {
-      final additionalFields = <String, String>{
-        'query': textQuery,
-        'textWeight': textWeight.toString(),
-        'imageWeight': imageWeight.toString(),
-        if (limit != null) 'limit': limit.toString(),
-      };
-
-      final response = await _apiService.uploadMultipart(
-        ApiConfig.searchMultimodalEndpoint,
-        file: imageFile,
-        fieldName: 'image',
-        additionalFields: additionalFields,
+      final url = Uri.parse('${ApiConfig.baseUrl}${ApiConfig.searchMultimodalEndpoint}');
+      
+      var request = http.MultipartRequest('POST', url);
+      
+      // Ajouter l'image
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          imageBytes,
+          filename: fileName,
+        ),
       );
+      
+      // Ajouter les champs
+      request.fields['text'] = textQuery;
+      request.fields['alpha'] = textWeight.toString();
+      request.fields['beta'] = imageWeight.toString();
+      
+      if (limit != null) {
+        request.fields['top_k'] = limit.toString();
+      }
 
-      final productsData = response['products'] ?? response['results'] ?? [];
-      final totalResults = response['total'] ?? response['totalResults'] ?? productsData.length;
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
-      final products = (productsData as List<dynamic>)
-          .map((json) => Product.fromJson(json))
-          .toList();
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final productsData = data['results'] ?? [];
+        final totalResults = data['count'] ?? productsData.length;
 
-      return SearchResult(
-        products: products,
-        searchType: SearchType.multimodal,
-        query: textQuery,
-        totalResults: totalResults,
-        timestamp: DateTime.now(),
-      );
+        final products = (productsData as List<dynamic>)
+            .map((json) => Product.fromJson(json))
+            .toList();
+
+        return SearchResult(
+          products: products,
+          searchType: SearchType.multimodal,
+          query: textQuery,
+          totalResults: totalResults,
+          timestamp: DateTime.now(),
+        );
+      } else {
+        throw Exception('Erreur de recherche: ${response.statusCode}');
+      }
     } catch (e) {
       rethrow;
     }

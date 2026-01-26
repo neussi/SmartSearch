@@ -100,10 +100,11 @@ class _CartScreenState extends State<CartScreen>
                     Expanded(
                       child: ListView.builder(
                         padding: const EdgeInsets.all(16),
-                        itemCount: cartProvider.items.length,
+                        itemCount: cartProvider.cartProducts.length,
                         itemBuilder: (context, index) {
-                          final item = cartProvider.items[index];
-                          return _buildCartItem(item, cartProvider, index);
+                          final product = cartProvider.cartProducts[index];
+                          final quantity = cartProvider.cart[product.id] ?? 0;
+                          return _buildCartItem(product, quantity, cartProvider, index);
                         },
                       ),
                     ),
@@ -197,7 +198,7 @@ class _CartScreenState extends State<CartScreen>
     );
   }
 
-  Widget _buildCartItem(item, CartProvider cartProvider, int index) {
+  Widget _buildCartItem(product, int quantity, CartProvider cartProvider, int index) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 400 + (index * 100)),
@@ -242,9 +243,9 @@ class _CartScreenState extends State<CartScreen>
                           ),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        child: item.product.imageUrl != null
+                        child: product.imageUrl.isNotEmpty
                             ? CachedNetworkImage(
-                                imageUrl: item.product.imageUrl!,
+                                imageUrl: product.imageUrl,
                                 fit: BoxFit.cover,
                                 placeholder: (context, url) => Center(
                                   child: CircularProgressIndicator(
@@ -273,7 +274,7 @@ class _CartScreenState extends State<CartScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            item.product.name,
+                            product.name,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -284,7 +285,7 @@ class _CartScreenState extends State<CartScreen>
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            Helpers.formatPrice(item.product.finalPrice),
+                            Helpers.formatPrice(product.finalPrice),
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -299,10 +300,10 @@ class _CartScreenState extends State<CartScreen>
                               _buildQuantityButton(
                                 icon: Icons.remove,
                                 onPressed: () {
-                                  if (item.quantity > 1) {
+                                  if (quantity > 1) {
                                     cartProvider.updateQuantity(
-                                      cartItemId: item.id,
-                                      quantity: item.quantity - 1,
+                                      productId: product.id,
+                                      quantity: quantity - 1,
                                     );
                                   }
                                 },
@@ -318,7 +319,7 @@ class _CartScreenState extends State<CartScreen>
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(
-                                  '${item.quantity}',
+                                  '$quantity',
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -331,8 +332,8 @@ class _CartScreenState extends State<CartScreen>
                                 icon: Icons.add,
                                 onPressed: () {
                                   cartProvider.updateQuantity(
-                                    cartItemId: item.id,
-                                    quantity: item.quantity + 1,
+                                    productId: product.id,
+                                    quantity: quantity + 1,
                                   );
                                 },
                               ),
@@ -351,7 +352,7 @@ class _CartScreenState extends State<CartScreen>
                                   ),
                                 ),
                                 onPressed: () {
-                                  cartProvider.removeFromCart(item.id);
+                                  cartProvider.removeFromCart(productId: product.id);
                                 },
                               ),
                             ],

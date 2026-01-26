@@ -295,3 +295,17 @@ Pour toute question :
 5. Préparer pour le déploiement
 
 Bonne chance avec SmartSearch!
+
+
+1. Supprime les anciens JAVA_HOME VS Code
+
+sed -i '/pleiades/d' ~/.bashrc ~/.profile ~/.bash_profile 2>/dev/null
+2. Définit le bon JAVA_HOME
+
+echo -e "\nexport JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64\nexport PATH=$JAVA_HOME/bin:$PATH" >> ~/.bashrc echo -e "\nexport JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64\nexport PATH=$JAVA_HOME/bin:$PATH" >> ~/.profile
+3. Force Gradle à utiliser Java 17
+
+mkdir -p ~/.gradle echo "org.gradle.java.home=/usr/lib/jvm/java-17-openjdk-amd64" > ~/.gradle/gradle.properties
+4. Recharge le shell
+
+source ~/.bashrc

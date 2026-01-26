@@ -359,4 +359,4 @@ Maintenant que vous êtes prêt, consultez :
   - bellakanmo@gmail.com
   - tezloic@gmail.com
 
-Bon développement ! 🚀
+Bon développement ! 

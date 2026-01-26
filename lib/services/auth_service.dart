@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:smartsearch/config/api_config.dart';
 import 'package:smartsearch/models/user.dart';
@@ -31,7 +32,7 @@ class AuthService {
         },
       );
 
-      final token = response['token'] ?? response['access_token'];
+      final token = response['access_token'] ?? response['token'];
       final userData = response['user'];
 
       if (token == null || userData == null) {
@@ -77,7 +78,7 @@ class AuthService {
         },
       );
 
-      final token = response['token'] ?? response['access_token'];
+      final token = response['access_token'] ?? response['token'];
       final userData = response['user'];
 
       if (token == null || userData == null) {
@@ -123,13 +124,11 @@ class AuthService {
     if (userJson == null) return null;
 
     try {
-      return User.fromJson(
-        Map<String, dynamic>.from(
-          // ignore: avoid_dynamic_calls
-          userJson as dynamic,
-        ),
-      );
-    } catch (_) {
+      final Map<String, dynamic> data = jsonDecode(userJson);
+      return User.fromJson(data);
+    } catch (e) {
+      // Si l'ancienne méthode de sauvegarde était utilisée (toString), cela va échouer
+      // On ignore l'erreur
       return null;
     }
   }
@@ -147,6 +146,6 @@ class AuthService {
 
   /// Sauvegarder l'utilisateur
   Future<void> _saveUser(User user) async {
-    await _secureStorage.write(key: _userKey, value: user.toJson().toString());
+    await _secureStorage.write(key: _userKey, value: jsonEncode(user.toJson()));
   }
 }

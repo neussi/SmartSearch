@@ -1,16 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:smartsearch/models/user.dart';
-import 'package:smartsearch/services/auth_service.dart';
+import 'package:smartsearch/services/local_auth_service.dart';
 
-/// Provider pour l'authentification
+/// Provider pour l'authentification locale
 class AuthProvider with ChangeNotifier {
-  final AuthService _authService;
+  final LocalAuthService _authService;
 
   User? _user;
   bool _isLoading = false;
   String? _errorMessage;
 
-  AuthProvider({required AuthService authService})
+  AuthProvider({required LocalAuthService authService})
       : _authService = authService;
 
   // Getters
@@ -51,7 +51,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError('Erreur de connexion: $e');
+      _setError(e.toString());
       return false;
     } finally {
       _setLoading(false);
@@ -78,7 +78,7 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      _setError('Erreur d\'inscription: $e');
+      _setError(e.toString());
       return false;
     } finally {
       _setLoading(false);

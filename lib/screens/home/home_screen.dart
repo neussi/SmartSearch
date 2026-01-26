@@ -321,6 +321,65 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+          // Section Modes de Recherche
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Modes de Recherche',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: ThemeConfig.textPrimaryColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _SearchModeButton(
+                          icon: Icons.text_fields,
+                          label: 'Texte',
+                          color: ThemeConfig.primaryColor,
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.textSearch);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _SearchModeButton(
+                          icon: Icons.camera_alt,
+                          label: 'Image',
+                          color: ThemeConfig.primaryColor,
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.imageSearch);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _SearchModeButton(
+                          icon: Icons.auto_awesome,
+                          label: 'Multimodal',
+                          color: ThemeConfig.primaryColor,
+                          onTap: () {
+                            Navigator.pushNamed(context, AppRoutes.combinedSearch);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           const SliverToBoxAdapter(child: SizedBox(height: 30)),
 
           // Section Catégories
@@ -757,6 +816,89 @@ class _CategoryItemState extends State<_CategoryItem>
           ),
         );
       },
+    );
+  }
+}
+
+/// Widget pour les boutons de mode de recherche
+class _SearchModeButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SearchModeButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          decoration: BoxDecoration(
+            color: ThemeConfig.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: color.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      color,
+                      color.withValues(alpha: 0.8),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  icon,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

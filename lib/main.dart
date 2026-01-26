@@ -7,8 +7,8 @@ import 'package:smartsearch/providers/cart_provider.dart';
 import 'package:smartsearch/providers/product_provider.dart';
 import 'package:smartsearch/providers/search_provider.dart';
 import 'package:smartsearch/services/api_service.dart';
-import 'package:smartsearch/services/auth_service.dart';
-import 'package:smartsearch/services/cart_service.dart';
+import 'package:smartsearch/services/local_auth_service.dart';
+import 'package:smartsearch/services/local_cart_service.dart';
 import 'package:smartsearch/services/product_service.dart';
 import 'package:smartsearch/services/search_service.dart';
 
@@ -23,15 +23,15 @@ class SmartSearchApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Initialisation des services
     final apiService = ApiService();
-    final authService = AuthService(apiService: apiService);
+    final localAuthService = LocalAuthService();
+    final localCartService = LocalCartService();
     final productService = ProductService(apiService: apiService);
     final searchService = SearchService(apiService: apiService);
-    final cartService = CartService(apiService: apiService);
 
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => AuthProvider(authService: authService)..initialize(),
+          create: (_) => AuthProvider(authService: localAuthService)..initialize(),
         ),
         ChangeNotifierProvider(
           create: (_) => ProductProvider(productService: productService),
@@ -40,7 +40,10 @@ class SmartSearchApp extends StatelessWidget {
           create: (_) => SearchProvider(searchService: searchService),
         ),
         ChangeNotifierProvider(
-          create: (_) => CartProvider(cartService: cartService),
+          create: (_) => CartProvider(
+            cartService: localCartService,
+            productService: productService,
+          )..loadCart(),
         ),
       ],
       child: MaterialApp(

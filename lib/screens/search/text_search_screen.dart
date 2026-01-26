@@ -367,7 +367,7 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                     child: Center(
                       child: Container(
                         margin: const EdgeInsets.all(20),
-                        padding: const EdgeInsets.all(40),
+                        padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: ThemeConfig.surfaceColor,
                           borderRadius: BorderRadius.circular(20),
@@ -381,24 +381,24 @@ class _TextSearchScreenState extends State<TextSearchScreen>
                           children: const [
                             Icon(
                               Icons.search,
-                              size: 80,
+                              size: 60,
                               color: ThemeConfig.primaryColor,
                             ),
-                            SizedBox(height: 16),
+                            SizedBox(height: 12),
                             Text(
                               'Recherchez des produits',
                               style: TextStyle(
                                 color: ThemeConfig.textPrimaryColor,
-                                fontSize: 20,
+                                fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 6),
                             Text(
                               'Entrez au moins 2 caractères',
                               style: TextStyle(
                                 color: ThemeConfig.textSecondaryColor,
-                                fontSize: 14,
+                                fontSize: 13,
                               ),
                             ),
                           ],

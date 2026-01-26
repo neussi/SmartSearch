@@ -1,38 +1,66 @@
 import 'package:flutter/foundation.dart';
-import 'package:smartsearch/models/cart_item.dart';
-import 'package:smartsearch/services/cart_service.dart';
+import 'package:smartsearch/models/product.dart';
+import 'package:smartsearch/services/local_cart_service.dart';
+import 'package:smartsearch/services/product_service.dart';
 
-/// Provider pour la gestion du panier
+/// Provider pour la gestion du panier local
 class CartProvider with ChangeNotifier {
-  final CartService _cartService;
+  final LocalCartService _cartService;
+  final ProductService _productService;
 
-  List<CartItem> _items = [];
+  Map<String, int> _cart = {};
+  List<Product> _cartProducts = [];
   bool _isLoading = false;
   String? _errorMessage;
 
-  CartProvider({required CartService cartService})
-      : _cartService = cartService;
+  CartProvider({
+    required LocalCartService cartService,
+    required ProductService productService,
+  })  : _cartService = cartService,
+        _productService = productService;
 
   // Getters
-  List<CartItem> get items => _items;
+  Map<String, int> get cart => _cart;
+  List<Product> get cartProducts => _cartProducts;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
-  int get itemCount => _cartService.getTotalItemCount(_items);
-  double get totalPrice => _cartService.calculateTotal(_items);
-  bool get isEmpty => _items.isEmpty;
+  int get itemCount => _cart.values.fold(0, (sum, qty) => sum + qty);
+  
+  double get totalPrice {
+    double total = 0;
+    for (var product in _cartProducts) {
+      final quantity = _cart[product.id] ?? 0;
+      total += product.finalPrice * quantity;
+    }
+    return total;
+  }
 
   /// Charger le panier
   Future<void> loadCart() async {
     _setLoading(true);
-    _clearError();
-
     try {
-      _items = await _cartService.getCart();
+      _cart = await _cartService.getCart();
+      await _loadCartProducts();
       notifyListeners();
     } catch (e) {
       _setError('Erreur de chargement du panier: $e');
     } finally {
       _setLoading(false);
+    }
+  }
+
+  /// Charger les produits du panier
+  Future<void> _loadCartProducts() async {
+    _cartProducts = [];
+    for (var productId in _cart.keys) {
+      try {
+        final product = await _productService.getProductById(productId);
+        _cartProducts.add(product);
+      } catch (e) {
+        // Produit non trouvé, on le retire du panier
+        await _cartService.removeFromCart(productId: productId);
+        _cart.remove(productId);
+      }
     }
   }
 
@@ -45,21 +73,11 @@ class CartProvider with ChangeNotifier {
     _clearError();
 
     try {
-      final cartItem = await _cartService.addToCart(
+      await _cartService.addToCart(
         productId: productId,
         quantity: quantity,
       );
-
-      // Vérifier si l'article existe déjà
-      final existingIndex = _items.indexWhere((item) => item.id == cartItem.id);
-
-      if (existingIndex != -1) {
-        _items[existingIndex] = cartItem;
-      } else {
-        _items.add(cartItem);
-      }
-
-      notifyListeners();
+      await loadCart();
       return true;
     } catch (e) {
       _setError('Erreur d\'ajout au panier: $e');
@@ -69,30 +87,20 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  /// Mettre à jour la quantité d'un article
+  /// Mettre à jour la quantité
   Future<bool> updateQuantity({
-    required String cartItemId,
+    required String productId,
     required int quantity,
   }) async {
-    if (quantity <= 0) {
-      return removeFromCart(cartItemId);
-    }
-
     _setLoading(true);
     _clearError();
 
     try {
-      final updatedItem = await _cartService.updateCartItem(
-        cartItemId: cartItemId,
+      await _cartService.updateQuantity(
+        productId: productId,
         quantity: quantity,
       );
-
-      final index = _items.indexWhere((item) => item.id == cartItemId);
-      if (index != -1) {
-        _items[index] = updatedItem;
-        notifyListeners();
-      }
-
+      await loadCart();
       return true;
     } catch (e) {
       _setError('Erreur de mise à jour: $e');
@@ -102,15 +110,14 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  /// Supprimer un article du panier
-  Future<bool> removeFromCart(String cartItemId) async {
+  /// Retirer un produit du panier
+  Future<bool> removeFromCart({required String productId}) async {
     _setLoading(true);
     _clearError();
 
     try {
-      await _cartService.removeFromCart(cartItemId);
-      _items.removeWhere((item) => item.id == cartItemId);
-      notifyListeners();
+      await _cartService.removeFromCart(productId: productId);
+      await loadCart();
       return true;
     } catch (e) {
       _setError('Erreur de suppression: $e');
@@ -127,7 +134,8 @@ class CartProvider with ChangeNotifier {
 
     try {
       await _cartService.clearCart();
-      _items.clear();
+      _cart = {};
+      _cartProducts = [];
       notifyListeners();
       return true;
     } catch (e) {
