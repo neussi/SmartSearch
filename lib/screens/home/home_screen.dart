@@ -282,30 +282,49 @@ class _HomeScreenState extends State<HomeScreen> {
                                 size: 22,
                               ),
                             ),
-                            suffixIcon: Container(
-                              margin: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    ThemeConfig.primaryColor,
-                                    ThemeConfig.primaryLightColor,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
+                            suffixIcon: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                // Bouton historique
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.history,
+                                    color: ThemeConfig.primaryColor,
+                                    size: 22,
                                   ),
-                                ],
-                              ),
-                              child: IconButton(
-                                icon: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
-                                onPressed: () {
-                                  Navigator.pushNamed(context, AppRoutes.imageSearch);
-                                },
-                              ),
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, AppRoutes.searchHistory);
+                                  },
+                                  tooltip: 'Historique',
+                                ),
+                                // Bouton caméra
+                                Container(
+                                  margin: const EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        ThemeConfig.primaryColor,
+                                        ThemeConfig.primaryLightColor,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(14),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                  ),
+                                  child: IconButton(
+                                    icon: const Icon(Icons.camera_alt, color: Colors.white, size: 22),
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, AppRoutes.imageSearch);
+                                    },
+                                    tooltip: 'Recherche par image',
+                                  ),
+                                ),
+                              ],
                             ),
                             contentPadding: const EdgeInsets.symmetric(
                               horizontal: 20,
@@ -402,7 +421,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.transparent,
                     child: InkWell(
                       onTap: () {
-                        Navigator.pushNamed(context, AppRoutes.productList);
+                        Navigator.pushNamed(context, AppRoutes.productsByCategory);
                       },
                       borderRadius: BorderRadius.circular(20),
                       child: Container(

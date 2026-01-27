@@ -6,8 +6,10 @@ import 'package:smartsearch/screens/auth/register_screen.dart';
 import 'package:smartsearch/screens/search/text_search_screen.dart';
 import 'package:smartsearch/screens/search/image_search_screen.dart';
 import 'package:smartsearch/screens/search/combined_search_screen.dart';
+import 'package:smartsearch/screens/search/search_history_screen.dart';
 import 'package:smartsearch/screens/product/product_detail_screen.dart';
 import 'package:smartsearch/screens/product/product_list_screen.dart';
+import 'package:smartsearch/screens/product/products_by_category_screen.dart';
 import 'package:smartsearch/screens/cart/cart_screen.dart';
 import 'package:smartsearch/screens/profile/profile_screen.dart';
 import 'package:smartsearch/screens/settings/professional_settings_screen.dart';
@@ -25,8 +27,10 @@ class AppRoutes {
   static const String textSearch = '/search/text';
   static const String imageSearch = '/search/image';
   static const String combinedSearch = '/search/combined';
+  static const String searchHistory = '/search/history';
   static const String productDetail = '/product/detail';
   static const String productList = '/product/list';
+  static const String productsByCategory = '/product/by-category';
   static const String cart = '/cart';
   static const String profile = '/profile';
   static const String settings = '/settings';
@@ -73,6 +77,11 @@ class AppRoutes {
           builder: (_) => const CombinedSearchScreen(),
         );
 
+      case searchHistory:
+        return MaterialPageRoute(
+          builder: (_) => const SearchHistoryScreen(),
+        );
+
       case productDetail:
         final args = routeSettings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
@@ -82,6 +91,11 @@ class AppRoutes {
       case productList:
         return MaterialPageRoute(
           builder: (_) => const ProductListScreen(),
+        );
+
+      case productsByCategory:
+        return MaterialPageRoute(
+          builder: (_) => const ProductsByCategoryScreen(),
         );
 
       case cart:
