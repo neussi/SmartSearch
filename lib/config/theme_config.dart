@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 
 /// Configuration du thème de l'application
-/// Charte graphique: Blanc & Orange
+/// Charte graphique: Blanc & Vert
 class ThemeConfig {
-  // Couleurs principales - Charte Orange & Blanc
-  static const Color primaryColor = Color(0xFFFF6B35);  // Orange principal
-  static const Color primaryLightColor = Color(0xFFFF8C61);  // Orange clair
-  static const Color primaryDarkColor = Color(0xFFE55A2B);  // Orange foncé
+  // Couleurs principales - Charte Vert & Blanc
+  static const Color primaryColor = Color(0xFF4CAF50);  // Vert principal
+  static const Color primaryLightColor = Color(0xFF81C784);  // Vert clair
+  static const Color primaryDarkColor = Color(0xFF388E3C);  // Vert foncé
 
   static const Color secondaryColor = Color(0xFF2D3142);  // Gris foncé élégant
-  static const Color accentColor = Color(0xFFFFB088);  // Orange pastel
+  static const Color accentColor = Color(0xFFA5D6A7);  // Vert pastel
 
   static const Color errorColor = Color(0xFFFF6B6B);
   static const Color backgroundColor = Color(0xFFFAFAFA);  // Blanc cassé très léger
@@ -25,7 +25,7 @@ class ThemeConfig {
   static const Color successColor = Color(0xFF52C41A);
   static const Color warningColor = Color(0xFFFAAD14);
 
-  // Thème clair - Design élégant blanc & orange
+  // Thème clair - Design élégant blanc & vert
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,

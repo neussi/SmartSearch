@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 import 'package:smartsearch/models/product.dart';
+import 'package:smartsearch/providers/favorites_provider.dart';
 import 'package:smartsearch/utils/helpers.dart';
 import 'package:smartsearch/config/routes.dart';
 import 'package:smartsearch/config/theme_config.dart';
+import 'package:smartsearch/widgets/cart_selection_dialog.dart';
 
 /// ProductCard ULTRA PROFESSIONNEL avec design blanc & orange
 /// Animations fluides, effets visuels WAOUH, interactions dynamiques
@@ -11,12 +14,14 @@ class ProductCard extends StatefulWidget {
   final Product product;
   final VoidCallback? onTap;
   final VoidCallback? onAddToCart;
+  final bool showFavoriteButton;
 
   const ProductCard({
     super.key,
     required this.product,
     this.onTap,
     this.onAddToCart,
+    this.showFavoriteButton = true,
   });
 
   @override
@@ -192,6 +197,59 @@ class _ProductCardState extends State<ProductCard>
                             },
                           ),
                         ),
+                      // Bouton favori
+                      if (widget.showFavoriteButton)
+                        Positioned(
+                          top: 12,
+                          left: 12,
+                          child: Consumer<FavoritesProvider>(
+                            builder: (context, favoritesProvider, child) {
+                              final isFavorite = favoritesProvider.isFavorite(widget.product.id);
+                              return Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () async {
+                                    final newState = await favoritesProvider.toggleFavorite(widget.product.id);
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            newState
+                                                ? '${widget.product.name} ajouté aux favoris'
+                                                : '${widget.product.name} retiré des favoris',
+                                          ),
+                                          behavior: SnackBarBehavior.floating,
+                                          backgroundColor: ThemeConfig.primaryColor,
+                                          duration: const Duration(seconds: 2),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.9),
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(alpha: 0.1),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                                      color: isFavorite ? ThemeConfig.errorColor : ThemeConfig.textSecondaryColor,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
                       // Rating - Style minimaliste
                       if (widget.product.rating != null)
                         Positioned(
@@ -286,11 +344,33 @@ class _ProductCardState extends State<ProductCard>
                                 ],
                               ),
                             ),
-                            // Bouton d'ajout au panier - Orange AMÉLIORÉ
+                            // Bouton d'ajout au panier - Vert AMÉLIORÉ
                             Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                onTap: widget.onAddToCart,
+                                onTap: () async {
+                                  // Afficher le dialog de sélection de panier
+                                  final added = await CartSelectionDialog.show(
+                                    context: context,
+                                    product: widget.product,
+                                    quantity: 1,
+                                  );
+                                  
+                                  if (added == true && context.mounted) {
+                                    // Appeler le callback si fourni
+                                    widget.onAddToCart?.call();
+                                    
+                                    // Afficher un message de confirmation
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('${widget.product.name} ajouté au panier'),
+                                        behavior: SnackBarBehavior.floating,
+                                        backgroundColor: ThemeConfig.primaryColor,
+                                        duration: const Duration(seconds: 2),
+                                      ),
+                                    );
+                                  }
+                                },
                                 borderRadius: BorderRadius.circular(12),
                                 child: Container(
                                   padding: const EdgeInsets.all(10),

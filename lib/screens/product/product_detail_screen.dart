@@ -311,7 +311,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
                                 Text(
                                   Helpers.formatPrice(product.price),
                                   style: const TextStyle(
-                                    fontSize: 20,
+                                    fontSize: 16,
                                     color: ThemeConfig.textSecondaryColor,
                                     decoration: TextDecoration.lineThrough,
                                   ),

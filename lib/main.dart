@@ -4,13 +4,17 @@ import 'package:smartsearch/config/routes.dart';
 import 'package:smartsearch/config/theme_config.dart';
 import 'package:smartsearch/providers/auth_provider.dart';
 import 'package:smartsearch/providers/cart_provider.dart';
+import 'package:smartsearch/providers/multi_cart_provider.dart';
 import 'package:smartsearch/providers/product_provider.dart';
 import 'package:smartsearch/providers/search_provider.dart';
+import 'package:smartsearch/providers/favorites_provider.dart';
 import 'package:smartsearch/services/api_service.dart';
 import 'package:smartsearch/services/local_auth_service.dart';
 import 'package:smartsearch/services/local_cart_service.dart';
+import 'package:smartsearch/services/multi_cart_service.dart';
 import 'package:smartsearch/services/product_service.dart';
 import 'package:smartsearch/services/search_service.dart';
+import 'package:smartsearch/services/favorites_service.dart';
 
 void main() {
   runApp(const SmartSearchApp());
@@ -25,6 +29,8 @@ class SmartSearchApp extends StatelessWidget {
     final apiService = ApiService();
     final localAuthService = LocalAuthService();
     final localCartService = LocalCartService();
+    final multiCartService = MultiCartService();
+    final favoritesService = FavoritesService();
     final productService = ProductService(apiService: apiService);
     final searchService = SearchService(apiService: apiService);
 
@@ -44,6 +50,18 @@ class SmartSearchApp extends StatelessWidget {
             cartService: localCartService,
             productService: productService,
           )..loadCart(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FavoritesProvider(
+            favoritesService: favoritesService,
+            productService: productService,
+          )..loadFavorites(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => MultiCartProvider(
+            cartService: multiCartService,
+            productService: productService,
+          )..loadCarts(),
         ),
       ],
       child: MaterialApp(

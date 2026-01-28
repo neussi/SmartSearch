@@ -217,6 +217,14 @@ class _ProfileScreenSimpleState extends State<ProfileScreenSimple>
                     ),
                     const Divider(height: 1),
                     _buildMenuItem(
+                      icon: Icons.shopping_cart_outlined,
+                      title: 'Mes Paniers',
+                      onTap: () {
+                        Navigator.pushNamed(context, AppRoutes.multiCart);
+                      },
+                    ),
+                    const Divider(height: 1),
+                    _buildMenuItem(
                       icon: Icons.history,
                       title: 'Historique',
                       onTap: () {},

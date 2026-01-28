@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:smartsearch/config/theme_config.dart';
+import 'package:smartsearch/config/routes.dart';
 import 'package:smartsearch/providers/cart_provider.dart';
+import 'package:smartsearch/providers/multi_cart_provider.dart';
 import 'package:smartsearch/widgets/loading_widget.dart';
 import 'package:smartsearch/utils/helpers.dart';
 
@@ -108,6 +110,8 @@ class _CartScreenState extends State<CartScreen>
                         },
                       ),
                     ),
+                    // Section autres paniers
+                    _buildOtherCartsSection(),
                     _buildCartSummary(cartProvider),
                   ],
                 ),
@@ -600,6 +604,186 @@ class _CartScreenState extends State<CartScreen>
           ),
         ],
       ),
+    );
+  }
+
+  /// Section pour afficher les autres paniers disponibles
+  Widget _buildOtherCartsSection() {
+    return Consumer<MultiCartProvider>(
+      builder: (context, multiCartProvider, child) {
+        // Ne rien afficher si pas de paniers multiples
+        if (multiCartProvider.carts.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: ThemeConfig.surfaceColor,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: ThemeConfig.primaryColor.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: ThemeConfig.primaryColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.shopping_cart_outlined,
+                          color: ThemeConfig.primaryColor,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Mes Paniers',
+                            style: TextStyle(
+                              color: ThemeConfig.textPrimaryColor,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${multiCartProvider.cartsCount} panier${multiCartProvider.cartsCount > 1 ? 's' : ''}',
+                            style: const TextStyle(
+                              color: ThemeConfig.textSecondaryColor,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(context, AppRoutes.multiCart);
+                    },
+                    icon: const Icon(Icons.arrow_forward, size: 16),
+                    label: const Text('Voir tout'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: ThemeConfig.primaryColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                height: 80,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: multiCartProvider.carts.take(5).length,
+                  itemBuilder: (context, index) {
+                    final cart = multiCartProvider.carts[index];
+                    final isActive = cart.id == multiCartProvider.activeCartId;
+                    final total = multiCartProvider.getCartTotal(cart.id);
+
+                    return GestureDetector(
+                      onTap: () {
+                        multiCartProvider.setActiveCart(cart.id);
+                        Navigator.pushNamed(context, AppRoutes.multiCart);
+                      },
+                      child: Container(
+                        width: 140,
+                        margin: const EdgeInsets.only(right: 12),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isActive
+                              ? ThemeConfig.primaryColor.withValues(alpha: 0.1)
+                              : ThemeConfig.backgroundColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isActive
+                                ? ThemeConfig.primaryColor
+                                : ThemeConfig.primaryColor.withValues(alpha: 0.2),
+                            width: isActive ? 2 : 1,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    cart.name,
+                                    style: TextStyle(
+                                      color: ThemeConfig.textPrimaryColor,
+                                      fontSize: 14,
+                                      fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (isActive)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: ThemeConfig.primaryColor,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'ACTIF',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  '${cart.totalItems} article${cart.totalItems > 1 ? 's' : ''}',
+                                  style: const TextStyle(
+                                    color: ThemeConfig.textSecondaryColor,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                                Text(
+                                  '${total.toStringAsFixed(0)} F',
+                                  style: const TextStyle(
+                                    color: ThemeConfig.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

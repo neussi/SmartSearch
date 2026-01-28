@@ -11,6 +11,7 @@ import 'package:smartsearch/screens/product/product_detail_screen.dart';
 import 'package:smartsearch/screens/product/product_list_screen.dart';
 import 'package:smartsearch/screens/product/products_by_category_screen.dart';
 import 'package:smartsearch/screens/cart/cart_screen.dart';
+import 'package:smartsearch/screens/cart/multi_cart_screen.dart';
 import 'package:smartsearch/screens/profile/profile_screen.dart';
 import 'package:smartsearch/screens/settings/professional_settings_screen.dart';
 import 'package:smartsearch/screens/onboarding/onboarding_screen.dart';
@@ -32,6 +33,7 @@ class AppRoutes {
   static const String productList = '/product/list';
   static const String productsByCategory = '/product/by-category';
   static const String cart = '/cart';
+  static const String multiCart = '/cart/multi';
   static const String profile = '/profile';
   static const String settings = '/settings';
   static const String onboarding = '/onboarding';
@@ -101,6 +103,11 @@ class AppRoutes {
       case cart:
         return MaterialPageRoute(
           builder: (_) => const CartScreen(),
+        );
+
+      case multiCart:
+        return MaterialPageRoute(
+          builder: (_) => const MultiCartScreen(),
         );
 
       case profile:

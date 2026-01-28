@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:smartsearch/config/theme_config.dart';
+import 'package:smartsearch/providers/multi_cart_provider.dart';
 
 /// Modern Bottom Navigation Bar avec animations fluides
 /// Design blanc & orange, super professionnel et dynamique
@@ -122,17 +124,67 @@ class _ModernBottomNavState extends State<ModernBottomNav>
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // Icon avec animation
-                                AnimatedSwitcher(
-                                  duration: const Duration(milliseconds: 200),
-                                  child: Icon(
-                                    isActive ? item.activeIcon : item.icon,
-                                    key: ValueKey(isActive),
-                                    color: isActive
-                                        ? ThemeConfig.primaryColor
-                                        : ThemeConfig.textSecondaryColor,
-                                    size: 26,
-                                  ),
+                                // Icon avec animation et badge
+                                Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    AnimatedSwitcher(
+                                      duration: const Duration(milliseconds: 200),
+                                      child: Icon(
+                                        isActive ? item.activeIcon : item.icon,
+                                        key: ValueKey(isActive),
+                                        color: isActive
+                                            ? ThemeConfig.primaryColor
+                                            : ThemeConfig.textSecondaryColor,
+                                        size: 26,
+                                      ),
+                                    ),
+                                    // Badge pour le panier (index 3)
+                                    if (index == 3)
+                                      Positioned(
+                                        right: -8,
+                                        top: -4,
+                                        child: Consumer<MultiCartProvider>(
+                                          builder: (context, multiCartProvider, child) {
+                                            if (multiCartProvider.carts.isEmpty) {
+                                              return const SizedBox.shrink();
+                                            }
+                                            
+                                            // Trouver l'index du panier actif
+                                            final activeIndex = multiCartProvider.carts.indexWhere(
+                                              (cart) => cart.id == multiCartProvider.activeCartId,
+                                            );
+                                            final displayIndex = activeIndex >= 0 ? activeIndex + 1 : 1;
+                                            
+                                            return Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: ThemeConfig.primaryColor,
+                                                borderRadius: BorderRadius.circular(8),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: ThemeConfig.primaryColor.withValues(alpha: 0.4),
+                                                    blurRadius: 4,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Text(
+                                                '$displayIndex/${multiCartProvider.cartsCount}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                  ],
                                 ),
                                 const SizedBox(height: 4),
                                 // Label avec animation
